@@ -14,6 +14,7 @@ import Typography from '@mui/material/Typography';
 import MainCard from 'components/ui-component/cards/MainCard';
 import TotalIncomeCard from 'components/ui-component/cards/Skeleton/TotalIncomeCard';
 import { ThemeMode } from 'config';
+import { useSelector } from 'react-redux';
 
 // styles
 const CardWrapper = styled(MainCard)(({ theme }) => ({
@@ -43,10 +44,14 @@ const CardWrapper = styled(MainCard)(({ theme }) => ({
 
 // ==============================|| DASHBOARD - TOTAL INCOME LIGHT CARD ||============================== //
 
-const TotalIncomeLightCard = ({ isLoading, total, icon, label }) => {
+const TotalIncomeLightCard = ({ isLoading, icon, label, userId }) => {
   const theme = useTheme();
   const customBG = label === 'Meeting attends' ? alpha(theme.palette.error.light, 0.25) : 'warning.light';
 
+  const retirements = useSelector((state) => state.retirements.retirements)
+  const filteredRetirements = retirements.filter((retirement) => retirement.userId === userId);
+
+  const totalAmount = filteredRetirements.reduce((acc, curr) => acc + curr.totalAmount, 0);
   return (
     <>
       {isLoading ? (
@@ -71,7 +76,7 @@ const TotalIncomeLightCard = ({ isLoading, total, icon, label }) => {
                 </ListItemAvatar>
                 <ListItemText
                   sx={{ py: 0, mt: 0.45, mb: 0.45 }}
-                  primary={<Typography variant="h4">${total}k</Typography>}
+                  primary={<Typography variant="h4">{`K${totalAmount.toLocaleString()}`}</Typography>}
                   secondary={
                     <Typography variant="subtitle2" sx={{ color: theme.palette.grey[500], mt: 0.5 }}>
                       {label}

@@ -26,12 +26,12 @@ import theme6 from '../scss/_theme6.module.scss';
 
 export default function ThemeCustomization({ children }) {
   const config = useConfig();
-  const { borderRadius, fontFamily, mode, outlinedFilled, presetColor, themeDirection } = useConfig();
+  const { borderRadius, fontFamily, mode, outlinedFilled, presetColor, themeDirection, themeMode } = useConfig();
 
-  const theme = useMemo(() => Palette(mode, presetColor), [mode, presetColor]);
+  const theme = useMemo(() => Palette(themeMode, presetColor), [themeMode, presetColor]);
 
   const themeTypography = useMemo(() => Typography(theme, borderRadius, fontFamily), [theme, borderRadius, fontFamily]);
-  const themeCustomShadows = useMemo(() => customShadows(mode, theme), [mode, theme]);
+  const themeCustomShadows = useMemo(() => customShadows(themeMode, theme), [themeMode, theme]);
 
   let color;
   switch (config.presetColor) {
@@ -117,7 +117,7 @@ export default function ThemeCustomization({ children }) {
       typography: themeTypography,
       customShadows: themeCustomShadows
     }),
-    [themeDirection, theme, themeCustomShadows, themeTypography]
+    [themeDirection, theme, themeCustomShadows, themeTypography, themeMode]
   );
 
   const themes = createTheme(themeOptions);

@@ -36,6 +36,9 @@ import {ThemeMode} from 'config';
 
 // assets
 import {IconBell, IconLogout, IconSearch, IconSettings, IconUser} from '@tabler/icons-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { logout } from 'store/slices/authSlice';
+import { useRouter } from "next/navigation";
 
 const User1 = '/assets/images/users/user-round.svg';
 
@@ -43,22 +46,25 @@ const User1 = '/assets/images/users/user-round.svg';
 
 const ProfileSection = () => {
     const theme = useTheme();
-    const {borderRadius} = useConfig();
+    const {borderRadius, toggleThemeMode} = useConfig();
+    const dispatch = useDispatch()
     // const navigate = useNavigate();
 
-    const [sdm, setSdm] = useState(true);
+    const [sdm, setSdm] = useState(false);
     const [value, setValue] = useState('');
     const [notification, setNotification] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(-1);
-    const {logout, user} = useAuth();
+    const router = useRouter();
     const [open, setOpen] = useState(false);
+    const currentUser = useSelector((state) => state.auth.currentUser);
     /**
      * anchorRef is used on different components and specifying one type leads to other components throwing an error
      * */
     const anchorRef = useRef(null);
-    const handleLogout = async () => {
+    const handleLogout = () => {
         try {
-            await logout();
+            // dispatch(logout())
+            router.push("/")
         } catch (err) {
             console.error(err);
         }
@@ -89,6 +95,11 @@ const ProfileSection = () => {
 
         prevOpen.current = open;
     }, [open]);
+
+    const handleThemeToggle = (event) => {
+        setSdm(event.target.checked);
+        toggleThemeMode();
+    };
 
     return (
         <>
@@ -124,7 +135,7 @@ const ProfileSection = () => {
                         aria-haspopup="true"
                         color="inherit"
                         alt="user images"
-                    >SA</Avatar>
+                    >{currentUser.firstName.charAt(0).toUpperCase()}{currentUser.lastName.charAt(0).toUpperCase()}</Avatar>
                 }
                 label={<IconSettings stroke={1.5} size="24px"/>}
                 variant="outlined"
@@ -162,10 +173,10 @@ const ProfileSection = () => {
                                                 <Stack direction="row" spacing={0.5} alignItems="center">
                                                     <Typography variant="h4">Hello there,</Typography>
                                                     <Typography component="span" variant="h4" sx={{fontWeight: 400}}>
-                                                        {user?.name}
+                                                        {currentUser.firstName}
                                                     </Typography>
                                                 </Stack>
-                                                <Typography variant="subtitle2">System Admin</Typography>
+                                                <Typography variant="subtitle2">{currentUser.department}</Typography>
                                             </Stack>
                                             {/*<OutlinedInput*/}
                                             {/*    sx={{width: '100%', pr: 1, pl: 2, my: 2}}*/}
@@ -209,7 +220,7 @@ const ProfileSection = () => {
                                                                         <Switch
                                                                             color="primary"
                                                                             checked={sdm}
-                                                                            onChange={(e) => setSdm(e.target.checked)}
+                                                                            onChange={handleThemeToggle}
                                                                             name="sdm"
                                                                             size="small"
                                                                         />

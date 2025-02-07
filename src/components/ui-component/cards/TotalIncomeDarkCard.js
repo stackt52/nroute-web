@@ -16,6 +16,7 @@ import TotalIncomeCard from 'components/ui-component/cards/Skeleton/TotalIncomeC
 
 // assets
 import TableChartOutlinedIcon from '@mui/icons-material/TableChartOutlined';
+import { useSelector } from 'react-redux';
 
 // styles
 const CardWrapper = styled(MainCard)(({ theme }) => ({
@@ -47,8 +48,14 @@ const CardWrapper = styled(MainCard)(({ theme }) => ({
 
 // ==============================|| DASHBOARD - TOTAL INCOME DARK CARD ||============================== //
 
-const TotalIncomeDarkCard = ({ isLoading }) => {
+const TotalIncomeDarkCard = ({ isLoading, userId }) => {
   const theme = useTheme();
+
+  const advances = useSelector((state) => state.advances.advances);
+
+  const filteredAdvances = advances.filter((advance) => advance.userId === userId);
+
+  const totalAmount = filteredAdvances.reduce((acc, curr) => acc + curr.totalAmount, 0);
 
   return (
     <>
@@ -80,12 +87,12 @@ const TotalIncomeDarkCard = ({ isLoading }) => {
                   }}
                   primary={
                     <Typography variant="h4" sx={{ color: '#fff' }}>
-                      $203k
+                      {`K${totalAmount.toLocaleString()}`}
                     </Typography>
                   }
                   secondary={
                     <Typography variant="subtitle2" sx={{ color: 'primary.light', mt: 0.25 }}>
-                      Total Income
+                      Total Amount Given
                     </Typography>
                   }
                 />

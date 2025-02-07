@@ -1,7 +1,7 @@
 'use client';
 
 import PropTypes from 'prop-types';
-import {createContext} from 'react';
+import {createContext, useState, useContext} from 'react';
 
 // project import
 import defaultConfig from 'config';
@@ -38,7 +38,15 @@ const initialState = {
 
 const ConfigContext = createContext(initialState);
 
+export const useConfig = () => useContext(ConfigContext);
+
 function ConfigProvider({children}) {
+    const [themeMode, setThemeMode] = useState("light")
+
+    const toggleThemeMode = () => {
+        setThemeMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
+    };
+
     const [config, setConfig] = useLocalStorage('berry-config-next-js', {
         menuOrientation: initialState.menuOrientation,
         miniDrawer: initialState.miniDrawer,
@@ -139,7 +147,9 @@ function ConfigProvider({children}) {
                 onChangeFontFamily,
                 onChangeBorderRadius,
                 onChangeOutlinedField,
-                onReset
+                onReset,
+                themeMode,
+                toggleThemeMode
             }}
         >
             {children}

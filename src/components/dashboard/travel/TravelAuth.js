@@ -47,7 +47,15 @@ export default function TravelAuth({setSelectedItem}) {
         setSelectedItem(ta)
     }
 
-    const travelAuthorizations = useSelector((state) => state.travelAuthorization);
+    const currentUser = useSelector((state) => state.auth.currentUser);
+    const travelAuthorizations = useSelector((state) => state.advances.advances);
+
+    const getRelevantAdvances = () => {
+        return travelAuthorizations.filter(ta => ta.userId === currentUser.id);
+    }
+
+    const filteredAdvances = getRelevantAdvances();
+
     return <>
         <TableContainer>
             <Table>
@@ -57,12 +65,12 @@ export default function TravelAuth({setSelectedItem}) {
                         <TableCell sx={{pl: 3}}>Trip</TableCell>
                         <TableCell>Trip Date</TableCell>
                         <TableCell align="right">Amount</TableCell>
-                        <TableCell align="right" sx={{pr: 3}}>Status</TableCell>
+                        <TableCell align="right" >Status</TableCell>
                         <TableCell align="right" sx={{pr: 3}}></TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {travelAuthorizations.map((ta, index) => (
+                    {filteredAdvances.map((ta, index) => (
                         <TableRow hover key={index}>
                             <TableCell>{ta.dateSubmitted}</TableCell>
                             <TableCell sx={{pl: 3}}>

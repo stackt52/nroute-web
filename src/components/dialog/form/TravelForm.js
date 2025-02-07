@@ -21,9 +21,13 @@ import {closeDialog, setSubmitCallback} from "../../../store/slices/dialog";
 import DetailsCard from "../../ui-component/ta/details/DetailsCard";
 import {randomKey} from "../../../utils/key-generator";
 import {addTravelAuthorization} from "../../../store/slices/travelAuthorization";
+import { createAdvance } from 'store/slices/advanceSlice';
+import { useSelector } from 'react-redux';
 
-const RetirementForm = () => {
+const TravelForm = () => {
     const detailsForm = useRef(null);
+
+    const currentUser = useSelector((state) => state.auth.currentUser);
 
     const [details, setDetails] = useState({});
     const [incidentals, setIncidentals] = useState([]);
@@ -71,7 +75,13 @@ const RetirementForm = () => {
                     dateSubmitted: new Date().toISOString().split('T')[0],
                 }
                 // Update travel authorization
-                dispatch(addTravelAuthorization(payload))
+                // dispatch(addTravelAuthorization(payload))
+                dispatch(createAdvance({
+                    ...payload,
+                    userId: currentUser.id,
+                    supervisorId: currentUser.supervisorId,
+                    traveler: `${currentUser.firstName} ${currentUser.lastName}`
+                }))
 
                 enqueueSnackbar('Successfully submitted travel authorization request', {
                     anchorOrigin: {
@@ -114,9 +124,9 @@ const RetirementForm = () => {
             <Grid container spacing={gridSpacing}>
                 <Grid item xs={12}>
                     <Alert severity="info" variant="outlined">
-                        <AlertTitle>Apply for travel authorization</AlertTitle>
+                        <AlertTitle>Apply for travel Advance</AlertTitle>
                         Fill-out form below to apply for
-                        <strong> travel authorization</strong>
+                        <strong> travel Advance</strong>
                     </Alert>
                 </Grid>
                 <Grid item xs={12} flex>
@@ -141,4 +151,4 @@ const RetirementForm = () => {
     );
 };
 
-export default RetirementForm;
+export default TravelForm;

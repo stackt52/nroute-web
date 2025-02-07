@@ -23,6 +23,9 @@ import InputLabel from 'components/ui-component/extended/Form/InputLabel';
 import Incidental from "../../ui-component/ta/incidental/Incidental";
 import AddIncidental from "../../ui-component/ta/incidental/AddIncidental";
 import TotalCard from "../../ui-component/ta/TotalCard";
+import { useDispatch, useSelector } from 'react-redux';
+import { createRetirement, updateRetirementStatus } from 'store/slices/retirementSlice';
+import { roles } from 'constants/index';
 
 // yup validation-schema
 const validationSchema = yup.object({
@@ -34,281 +37,98 @@ const validationSchema = yup.object({
 // ==============================|| RETIREMNT DETAILS ||============================== //
 
 const RetirementForm = () => {
-    const [open, setOpen] = useState(false);
+    const dispatch = useDispatch();
+    const currentUser = useSelector((state) => state.auth.currentUser);
+    const advances = useSelector((state) => state.advances.advances);
+    const retirements = useSelector((state) => state.retirements.retirements);
 
-    const formik = useFormik({
-        initialValues: {
-            invoiceNumber: '',
-            customerName: '',
-            customerEmail: '',
-            customerPhone: '',
-            customerAddress: '',
-            orderStatus: 'pending'
-        },
-        validationSchema,
-        onSubmit: (values) => {
-            if (values) {
-                setOpen(true);
-            }
-        }
-    });
+    const [selectedFiles, setSelectedFiles] = useState({})
 
-    // array of products
-    const initialProducsData = [
-        {
-            id: 1,
-            product: 'Logo Design',
-            description: 'lorem ipsum dolor sit amat, connecter adieu siccing eliot',
-            quantity: 6,
-            amount: 200.0,
-            total: 1200.0
-        },
-        {
-            id: 2,
-            product: 'Landing Page',
-            description: 'lorem ipsum dolor sit amat, connecter adieu siccing eliot',
-            quantity: 7,
-            amount: 100.0,
-            total: 700.0
-        },
-        {
-            id: 3,
-            product: 'Admin Template',
-            description: 'lorem ipsum dolor sit amat, connecter adieu siccing eliot',
-            quantity: 5,
-            amount: 150.0,
-            total: 750.0
-        }
-    ];
+    const handleFileChange = (advanceId, e) => {
+        setSelectedFiles({
+            ...selectedFiles,
+            [advanceId]: Array.from(e.target.files)
+        })
+    }
 
-    const [allAmounts, setAllAmounts] = useState({
-        subTotal: 0,
-        appliedTaxValue: 0.1,
-        appliedDiscountValue: 0.05,
-        taxesAmount: 0,
-        discountAmount: 0,
-        totalAmount: 0
-    });
-    const [productsData, setProductsData] = useState(initialProducsData);
+    const handleSubmitRetirement = (advanceId) => {
+        const files = selectedFiles[advanceId];
+        
+        if (!files?.length) return;
 
-    const [valueBasic, setValueBasic] = React.useState(new Date());
-    const [addItemClicked, setAddItemClicked] = useState(false);
+        dispatch(createRetirement({
+            advanceId,
+            userId: currentUser.id,
+            files: files.map(f => ({
+                name: f.name,
+                size: f.size,
+                type: f.type
+            }))
+        }))
 
-    // calculates costs when order-details change
-    useEffect(() => {
-        const amounts = {
-            subTotal: 0,
-            appliedTaxValue: 0.1,
-            appliedDiscountValue: 0.05,
-            taxesAmount: 0,
-            discountAmount: 0,
-            totalAmount: 0
-        };
-        productsData.forEach((item) => {
-            amounts.subTotal += item.total;
-        });
-        amounts.taxesAmount = amounts.subTotal * amounts.appliedTaxValue;
-        amounts.discountAmount = (amounts.subTotal + amounts.taxesAmount) * amounts.appliedDiscountValue;
-        amounts.totalAmount = amounts.subTotal + amounts.taxesAmount - amounts.discountAmount;
-        setAllAmounts(amounts);
-    }, [productsData]);
+        setSelectedFiles({
+            ...selectedFiles,
+            [advanceId]: null
+        })
+    }
 
-    // to delete row in order details
-    const deleteProductHandler = (id) => {
-        setProductsData(productsData.filter((item) => item.id !== id));
-    };
+    const handleRetirementApproval = (retirementId, approved, comment = "") => {
+        dispatch(updateRetirementStatus({
+            id: retirementId,
+            status: approved ? 'APPROVED' : 'REJECTED',
+            comment
+        }))
+    }
 
-    // Dialog Handler
-    const handleDialogOk = () => {
-        setOpen(false);
-        formik.resetForm();
-    };
-
-    // add item handler
-    const handleAddItem = (addingData) => {
-        setProductsData([
-            ...productsData,
-            {
-                id: addingData.id,
-                product: addingData.name,
-                description: addingData.desc,
-                quantity: addingData.selectedQuantity,
-                amount: addingData.amount,
-                total: addingData.totalAmount
-            }
-        ]);
-
-        setAddItemClicked(false);
-    };
-
-    return (
-        <form onSubmit={formik.handleSubmit}>
+    if (currentUser.role.includes(roles.FINANCE)) {
+        return (
             <Grid container spacing={gridSpacing}>
-                <Grid item xs={12} md={4}>
-                    <Stack>
-                        <InputLabel required>Invoice Number</InputLabel>
-                        <TextField
-                            id="invoiceNumber"
-                            name="invoiceNumber"
-                            value={formik.values.invoiceNumber}
-                            onBlur={formik.handleBlur}
-                            error={formik.touched.invoiceNumber && Boolean(formik.errors.invoiceNumber)}
-                            helperText={formik.touched.invoiceNumber && formik.errors.invoiceNumber}
-                            onChange={formik.handleChange}
-                            fullWidth
-                            placeholder="Invoice #"
-                        />
-                    </Stack>
-                </Grid>
                 <Grid item xs={12}>
-                    <Divider/>
-                </Grid>
-                <Grid item xs={12} md={4}>
-                    <Stack>
-                        <InputLabel required>Customer Name</InputLabel>
-                        <TextField
-                            fullWidth
-                            id="customerName"
-                            name="customerName"
-                            value={formik.values.customerName}
-                            onChange={formik.handleChange}
-                            onBlur={formik.handleBlur}
-                            error={formik.touched.customerName && Boolean(formik.errors.customerName)}
-                            helperText={formik.touched.customerName && formik.errors.customerName}
-                            placeholder="Alex Z."
-                        />
-                    </Stack>
-                </Grid>
-                <Grid item xs={12} md={4}>
-                    <Stack>
-                        <InputLabel required>Customer Email</InputLabel>
-                        <TextField
-                            type="email"
-                            fullWidth
-                            id="customerEmail"
-                            name="customerEmail"
-                            value={formik.values.customerEmail}
-                            onChange={formik.handleChange}
-                            onBlur={formik.handleBlur}
-                            error={formik.touched.customerEmail && Boolean(formik.errors.customerEmail)}
-                            helperText={formik.touched.customerEmail && formik.errors.customerEmail}
-                            placeholder="alex@company.com"
-                        />
-                    </Stack>
-                </Grid>
-                <Grid item xs={12} md={4}>
-                    <Stack>
-                        <InputLabel required>Customer Contact Numer</InputLabel>
-                        <TextField
-                            type="number"
-                            fullWidth
-                            id="customerPhone"
-                            name="customerPhone"
-                            value={formik.values.customerPhone}
-                            onBlur={formik.handleBlur}
-                            error={formik.touched.customerPhone && Boolean(formik.errors.customerPhone)}
-                            helperText={formik.touched.customerPhone && formik.errors.customerPhone}
-                            onChange={formik.handleChange}
-                            placeholder="+ 00 00000 00000"
-                        />
-                    </Stack>
-                </Grid>
-                <Grid item xs={12}>
-                    <Stack>
-                        <InputLabel required>Customer Address</InputLabel>
-                        <TextField
-                            fullWidth
-                            id="customerAddress"
-                            name="customerAddress"
-                            value={formik.values.customerAddress}
-                            onBlur={formik.handleBlur}
-                            error={formik.touched.customerAddress && Boolean(formik.errors.customerAddress)}
-                            helperText={formik.touched.customerAddress && formik.errors.customerAddress}
-                            onChange={formik.handleChange}
-                            multiline
-                            placeholder="Enter Address"
-                        />
-                    </Stack>
-                </Grid>
-                <Grid item xs={12}>
-                    <Divider/>
-                </Grid>
-                <Grid item xs={12} md={6}>
-                    <Stack>
-                        <InputLabel required>Invoice Date</InputLabel>
-                        <TextField
-                            value={valueBasic}
-                            onBlur={formik.handleBlur}
-                            onChange={e =>  setValueBasic(e.target.value)}
-                            placeholder="End Date"
-                        />
-                    </Stack>
-                </Grid>
-                <Grid item xs={12} md={6}>
-                    <Stack>
-                        <InputLabel required>Status</InputLabel>
-                        <Select
-                            id="orderStatus"
-                            name="orderStatus"
-                            defaultValue={formik.values.orderStatus}
-                            value={formik.values.orderStatus}
-                            onChange={formik.handleChange}
-                        >
-                            <MenuItem value="pending">Pending</MenuItem>
-                            <MenuItem value="refund">Refund</MenuItem>
-                            <MenuItem value="paid">Paid</MenuItem>
-                        </Select>
-                        {formik.errors.orderStatus &&
-                            <FormHelperText error>{formik.errors.orderStatus}</FormHelperText>}
-                    </Stack>
-                </Grid>
-                <Grid item xs={12}>
-                    <Divider/>
-                </Grid>
-
-                <Incidental productsData={productsData} deleteProductHandler={deleteProductHandler}/>
-
-                {addItemClicked ? (
-                    <Grid item xs={12}>
-                        <AddIncidental handleAddItem={handleAddItem} setAddItemClicked={setAddItemClicked}/>
+                    <Grid container spacing={gridSpacing}>
+                        <Grid item xs={12}>
+                            <Grid container spacing={gridSpacing}>
+                                {retirements.map((retirement, index) => (
+                                    <Grid item xs={12} key={index}>
+                                        <Stack direction="row" spacing={2} alignItems="center">
+                                            <Stack direction="row" spacing={2}>
+                                                <TotalCard
+                                                    total={retirement.advance.amount}
+                                                    label="Amount"
+                                                    icon={<Incidental />}
+                                                />
+                                                <TotalCard
+                                                    total={retirement.advance.amount - retirement.advance.amountSpent}
+                                                    label="Balance"
+                                                    icon={<Incidental />}
+                                                />
+                                            </Stack>
+                                            <Stack direction="row" spacing={2}>
+                                                <Button
+                                                    variant="contained"
+                                                    color="success"
+                                                    onClick={() => handleRetirementApproval(retirement.id, true)}
+                                                >
+                                                    Approve
+                                                </Button>
+                                                <Button
+                                                    variant="contained"
+                                                    color="error"
+                                                    onClick={() => handleRetirementApproval(retirement.id, false)}
+                                                >
+                                                    Reject
+                                                </Button>
+                                            </Stack>
+                                        </Stack>
+                                        <Divider sx={{ my: 3 }} />
+                                    </Grid>
+                                ))}
+                            </Grid>
+                        </Grid>
                     </Grid>
-                ) : (
-                    <Grid item>
-                        <Button variant="text" onClick={() => setAddItemClicked(true)}>
-                            + Add Item
-                        </Button>
-                    </Grid>
-                )}
-                <Grid item xs={12}>
-                    <Divider/>
-                </Grid>
-
-                <TotalCard productsData={productsData} allAmounts={allAmounts}/>
-
-                <Grid item xs={12}>
-                    <Stack>
-                        <InputLabel required>Terms and Condition:</InputLabel>
-                        <TextField
-                            fullWidth
-                            id="customerAddress"
-                            name="customerAddress"
-                            defaultValue="I acknowledge terms and conditions."
-                            multiline
-                            placeholder="Enter Address"
-                        />
-                    </Stack>
-                </Grid>
-                <Grid item xs={12}>
-                    <Divider/>
-                </Grid>
-                <Grid item sx={{display: 'flex', justifyContent: 'flex-end'}} xs={12}>
-                    <Button variant="contained" type="submit">
-                        Add Invoice
-                    </Button>
                 </Grid>
             </Grid>
-        </form>
-    );
+        )
+    }
 };
 
 export default RetirementForm;

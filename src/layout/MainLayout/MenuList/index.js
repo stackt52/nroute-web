@@ -16,8 +16,18 @@ import useConfig from 'hooks/useConfig';
 import menuItem from 'menu-items';
 import {HORIZONTAL_MAX_ITEM, MenuOrientation} from 'config';
 import {useGetMenuMaster} from 'api/menu';
+import { useSelector } from 'react-redux';
+import { roles } from 'constants/index';
 
 // ==============================|| SIDEBAR MENU LIST ||============================== //
+
+const pageIds = {
+    retirementPage: 'retirement-page',
+    settingPage: "setting",
+    travelAuthPage: "travelAuthPage",
+    travelPage: "travel",
+    applyPage: "apply",
+}
 
 const MenuList = () => {
     const theme = useTheme();
@@ -26,6 +36,20 @@ const MenuList = () => {
     const {menuOrientation} = useConfig();
     const {menuMaster} = useGetMenuMaster();
     const drawerOpen = menuMaster.isDashboardDrawerOpened;
+
+    const currentUser = useSelector((state) => state.auth.currentUser);
+
+    if (currentUser.role.includes(roles.ADMIN)) {
+        menuItem.items = menuItem.items.filter(item => item.id !== pageIds.travelAuthPage && item.id !== pageIds.retirementPage && item.id !== pageIds.travelAuthPage);
+    } else if (currentUser.role.includes(roles.USER)) {
+        menuItem.items = menuItem.items.filter(item => item.id !== pageIds.settingPage);
+        menuItem.items[1].children[0].children = menuItem.items[1].children[0].children.filter(child => child.id !== 'approve' && child.id !== 'payment');
+    } else if (currentUser.role.includes(roles.SUPERVISOR) || currentUser.role.includes(roles.COST_CENTRE_OWNER)) {
+        menuItem.items = menuItem.items.filter(item => item.id !== pageIds.settingPage);
+        menuItem.items[1].children[0].children = menuItem.items[1].children[0].children.filter(child => child.id !== 'payment');
+    } else if (currentUser.role.includes(roles.FINANCE)) {
+        menuItem.items = menuItem.items.filter(item => item.id !== pageIds.settingPage);
+    }
 
     const isHorizontal = menuOrientation === MenuOrientation.HORIZONTAL && !downMD;
     const [selectedID, setSelectedID] = useState('');

@@ -11,6 +11,10 @@ import Typography from '@mui/material/Typography';
 
 // project imports
 import {useDispatch} from "../../../store";
+import { useSelector } from 'react-redux';
+import { useState } from 'react';
+import RetirementForm from 'components/dialog/form/RetirementForm';
+import { roles, statuses } from 'constants/index';
 
 // table data
 function createData(destination, trip, date, amount, badgeText) {
@@ -27,16 +31,23 @@ const rows = [
 
 export default function PendingRetirement() {
     const dispatch = useDispatch();
+    const currentUser = useSelector((state) => state.auth.currentUser);
+    const advances = useSelector((state) => state.advances.advances);
+    const retirements = useSelector((state) => state.retirements.retirements);
+
+    const [selectedFiles, setSelectedFiles] = useState({});
+
+    const filteredAdvances = advances.filter(advance => advance.status === statuses.APPROVED_FINANCE && advance.userId === currentUser.id);
 
     const openRetirementDialog = (e) => {
-        // dispatch(openDialog({
-        //     title: 'Retirement details',
-        //     open: true,
-        //     content: <RetirementForm/>,
-        //     actionButton: null,
-        //     fullWidth: true,
-        //     dismissButtonLabel: 'Close'
-        // }));
+        dispatch(openDialog({
+            title: 'Retirement details',
+            open: true,
+            content: <RetirementForm/>,
+            actionButton: null,
+            fullWidth: true,
+            dismissButtonLabel: 'Close'
+        }));
     }
 
     return  <TableContainer>
@@ -52,14 +63,14 @@ export default function PendingRetirement() {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {rows.map((row, index) => (
+                    {filteredAdvances.map((advance, index) => (
                         <TableRow hover key={index}>
                             <TableCell sx={{pl: 3}}>
-                                <Typography variant="subtitle1">{row.destination}</Typography>
-                                <Typography variant="subtitle2">{row.trip}</Typography>
+                                <Typography variant="subtitle1">{advance.details.destination.town}</Typography>
+                                <Typography variant="subtitle2">{advance.details.purpose}</Typography>
                             </TableCell>
-                            <TableCell align="right">{row.date}</TableCell>
-                            <TableCell align="right">{row.amount}</TableCell>
+                            <TableCell align="right">{advance.details.dateOfTravel}</TableCell>
+                            <TableCell align="right">{advance.totalAmount}</TableCell>
                             <TableCell align="right" sx={{pr: 3}}>
                                 <span>
                                     <Button color="error" size="small" variant="outlined"

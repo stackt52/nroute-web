@@ -17,8 +17,9 @@ import Snackbar from 'components/ui-component/extended/Snackbar';
 import RTLLayout from 'components/ui-component/RTLLayout';
 import Notistack from 'components/ui-component/third-party/Notistack';
 
-import {persister, store} from 'store';
+import { store} from 'store';
 import ThemeCustomization from 'themes';
+import { persister } from './index';
 
 import {ConfigProvider} from 'contexts/ConfigContext';
 

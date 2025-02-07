@@ -19,6 +19,9 @@ import userReducer from './slices/user';
 import cartReducer from './slices/cart';
 import kanbanReducer from './slices/kanban';
 import travelAuthorizationReducer from './slices/travelAuthorization';
+import authSlice from './slices/authSlice';
+import advanceSlice from './slices/advanceSlice';
+import retirementSlice from './slices/retirementSlice';
 
 // ==============================|| COMBINE REDUCER ||============================== //
 
@@ -44,7 +47,10 @@ const reducer = combineReducers({
     chat: chatReducer,
     calendar: calendarReducer,
     mail: mailReducer,
-    user: userReducer
+    user: userReducer,
+    auth: authSlice,
+    advances: advanceSlice,
+    retirements: retirementSlice
 });
 
 export default reducer;
