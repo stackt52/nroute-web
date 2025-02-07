@@ -10,15 +10,10 @@ import React, {useRef, useState} from "react";
 import {useSelector} from "../../../../store";
 import {useFormik} from "formik";
 import * as yup from 'yup';
+import {TADetails} from "../../../../schema";
 
 // yup validation-schema
-const validationSchema = yup.object({
-    officialStation: yup.object().required('Official Station is required'),
-    dateOfTravel: yup.date().required(),
-    destination: yup.object().required('Destination is required'),
-    costCenter: yup.object().required('Cost center is required'),
-    purpose: yup.string().required('Purpose is required')
-});
+const validationSchema = TADetails
 
 export default function DetailsCard({setData, formRef}) {
 
