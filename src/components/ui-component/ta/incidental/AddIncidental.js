@@ -19,17 +19,9 @@ import {useSelector} from "../../../../store";
 import {useFormik} from "formik";
 import {randomKey} from "../../../../utils/key-generator";
 import {enqueueSnackbar} from "notistack";
+import {Incidental} from "../../../../schema";
 
-const validationSchema = yup.object({
-    location: yup.object().required('Location is required'),
-    startDate: yup.date().default(new Date()).required('Start date is required'),
-    endDate: yup.date().default(null)
-        .when("startDate",
-            (startDate, yup) =>
-                startDate && yup.min(startDate, "End date cannot be before start date")),
-    rate: yup.string().required('Rate is required'),
-    amount: yup.number().required('Amount is required'),
-})
+const validationSchema = Incidental
 
 function AddIncidental({handleAddItem, setAddItemClicked}) {
     const localLocation = useSelector((state) => state.localLocation);
