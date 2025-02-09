@@ -19,4 +19,15 @@ const Incidental = yup.object({
     amount: yup.number().required('Amount is required'),
 });
 
-export {TADetails, Incidental}
+const Lodging = yup.object({
+    location: yup.object().required('Location is required'),
+    startDate: yup.date().required('Start date is required'),
+    endDate: yup.date().required('End date is required')
+})
+
+const Miscellaneuos = yup.object({
+    description: yup.object().required('Location is required'),
+    amount: yup.number().min(0.1, 'Invalid amount').required('Amount is required'),
+})
+
+export {TADetails, Incidental, Lodging, Miscellaneuos}

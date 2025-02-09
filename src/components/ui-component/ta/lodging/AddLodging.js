@@ -15,16 +15,11 @@ import Autocomplete from "@mui/material/Autocomplete";
 import ListItemText from "@mui/material/ListItemText";
 import {useSelector} from "../../../../store";
 import {useFormik} from "formik";
-import * as yup from 'yup';
 import {DatePicker} from "@mui/x-date-pickers/DatePicker";
 import {randomKey} from "../../../../utils/key-generator";
+import {Lodging} from "../../../../schema";
 
-
-const validationSchema = yup.object({
-    location: yup.object().required('Location is required'),
-    startDate: yup.date().required('Start date is required'),
-    endDate: yup.date().required('End date is required')
-})
+const validationSchema = Lodging
 
 function AddLodging({handleAddItem, setAddItemClicked}) {
     const localLocation = useSelector((state) => state.localLocation);

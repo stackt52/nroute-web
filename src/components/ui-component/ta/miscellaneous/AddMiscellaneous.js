@@ -11,16 +11,13 @@ import TextField from '@mui/material/TextField';
 import Autocomplete, {createFilterOptions} from '@mui/material/Autocomplete';
 
 // project imports
-import * as yup from 'yup';
 import {gridSpacing} from 'store/constant';
 import {useSelector} from "../../../../store";
 import {useFormik} from "formik";
 import {randomKey} from "../../../../utils/key-generator";
+import {Miscellaneuos} from "../../../../schema";
 
-const validationSchema = yup.object({
-    description: yup.object().required('Location is required'),
-    amount: yup.number().min(0.1, 'Invalid amount').required('Amount is required'),
-})
+const validationSchema = Miscellaneuos
 
 const filter = createFilterOptions();
 
