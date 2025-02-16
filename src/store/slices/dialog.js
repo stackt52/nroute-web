@@ -6,9 +6,11 @@ const initialState = {
     open: false,
     content: <p></p>,
     submitCallback: null,
+    retireCallback: null,
     fullWidth: false,
     dismissButtonLabel: 'Close',
     submitButtonLabel: 'Submit',
+    retireButtonLabel: 'Retire',
 };
 
 const dialog = createSlice({
@@ -16,7 +18,7 @@ const dialog = createSlice({
     initialState,
     reducers: {
         openDialog(state, action) {
-            const {title, subtitle, open, content, fullWidth, dismissButtonLabel, submitButtonLabel} = action.payload;
+            const {title, subtitle, open, content, fullWidth, dismissButtonLabel,retireButtonLabel, submitButtonLabel} = action.payload;
 
             state.title = title || 'Dialog'
             state.subtitle = subtitle || null
@@ -24,6 +26,8 @@ const dialog = createSlice({
             state.fullWidth = fullWidth || false
             state.dismissButtonLabel = dismissButtonLabel || "Close"
             state.submitButtonLabel = submitButtonLabel || "Submit"
+            state.retireButtonLabel = retireButtonLabel || "Retire"
+            state.retireCallback = null
             state.submitCallback = null
             state.open = true
         },
@@ -38,10 +42,18 @@ const dialog = createSlice({
                 state.submitButtonLabel = submitButtonLabel;
             }
             state.submitCallback = submitCallback;
+        },
+
+        setRetireCallback(state, action) {
+            const {retireCallback, retireButtonLabel} = action.payload;
+            if (retireButtonLabel) {
+                state.retireButtonLabel = retireButtonLabel;
+            }
+            state.retireCallback = retireCallback;
         }
     }
 });
 
-export const {openDialog, closeDialog, setSubmitCallback} = dialog.actions;
+export const {openDialog, closeDialog, setSubmitCallback,setRetireCallback} = dialog.actions;
 
 export default dialog.reducer;

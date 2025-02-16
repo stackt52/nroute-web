@@ -6,12 +6,7 @@ import React, {useEffect, useState} from 'react';
 import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Grid';
-import FormHelperText from '@mui/material/FormHelperText';
-import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
 import Stack from '@mui/material/Stack';
-import TextField from '@mui/material/TextField';
-
 
 // third-party
 import * as yup from 'yup';
@@ -23,9 +18,20 @@ import InputLabel from 'components/ui-component/extended/Form/InputLabel';
 import Incidental from "../../ui-component/ta/incidental/Incidental";
 import AddIncidental from "../../ui-component/ta/incidental/AddIncidental";
 import TotalCard from "../../ui-component/ta/TotalCard";
-import { useDispatch, useSelector } from 'react-redux';
-import { createRetirement, updateRetirementStatus } from 'store/slices/retirementSlice';
-import { roles } from 'constants/index';
+import {useDispatch, useSelector} from 'react-redux';
+import {createRetirement, updateRetirementStatus} from 'store/slices/retirementSlice';
+import {roles} from 'constants/index';
+import Typography from "@mui/material/Typography";
+import Avatar from "@mui/material/Avatar";
+import SubCard from "../../ui-component/cards/SubCard";
+import Box from "@mui/material/Box";
+import {useTheme} from "@mui/material/styles";
+import {ThemeMode} from "../../../config";
+import LodgingCard from "../../ui-component/retirement/LodgingCard";
+import MiscellaneousCard from "../../ui-component/retirement/MiscellaneousCard";
+import IncidentalCard from "../../ui-component/retirement/IncidentalCard";
+import {enqueueSnackbar} from "notistack";
+import {closeDialog, setRetireCallback} from "../../../store/slices/dialog";
 
 // yup validation-schema
 const validationSchema = yup.object({
@@ -34,15 +40,25 @@ const validationSchema = yup.object({
     phoneNumber: yup.string().min(10, 'Phone number should be of minimum 10 characters').required('Phone is Required'),
 });
 
-// ==============================|| RETIREMNT DETAILS ||============================== //
+// ==============================|| RETIREMENT DETAILS ||============================== //
 
-const RetirementForm = () => {
+export default function RetirementForm({selectedAdvance}) {
     const dispatch = useDispatch();
     const currentUser = useSelector((state) => state.auth.currentUser);
-    const advances = useSelector((state) => state.advances.advances);
     const retirements = useSelector((state) => state.retirements.retirements);
-
     const [selectedFiles, setSelectedFiles] = useState({})
+    const theme = useTheme();
+    const avatar = '/assets/images/users/avatar-2.png';
+    const { lodging, miscellaneous, incidentals, totalAmount, details } = selectedAdvance
+    const headerData = [
+        { header: 'No. of Days', value: 5 },
+        { header: 'Destination', value: `${details.destination.town}` },
+        { header: 'Official Station', value: `${details.officialStation.town}` },
+        { header: 'Total Amount', value: `ZMK ${totalAmount}` },
+        { header: 'Cost Center', value: `${details.costCenter.name}` },
+        { header: 'Purpose', value: `${details.purpose}` },
+        { header: 'Date of Travel', value: `${details.dateOfTravel}` },
+    ];
 
     const handleFileChange = (advanceId, e) => {
         setSelectedFiles({
@@ -53,7 +69,7 @@ const RetirementForm = () => {
 
     const handleSubmitRetirement = (advanceId) => {
         const files = selectedFiles[advanceId];
-        
+
         if (!files?.length) return;
 
         dispatch(createRetirement({
@@ -71,6 +87,63 @@ const RetirementForm = () => {
             [advanceId]: null
         })
     }
+
+
+    // State to store updated data from child components
+    const [updatedData, setUpdatedData] = useState({
+        lodging: lodging.map(item => ({ ...item, amountSpent: '', comment: '' })),
+        miscellaneous: miscellaneous.map(item => ({ ...item, amountSpent: '', comment: '' })),
+        incidentals: incidentals.map(item => ({ ...item, amountSpent: '', comment: '' })),
+    });
+
+    // Callback function to update the parent state when child data changes
+    const handleLodgingUpdate = (index, field, value) => {
+        setUpdatedData(prevData => {
+            const updatedLodging = [...prevData.lodging];
+            updatedLodging[index][field] = value;
+            return { ...prevData, lodging: updatedLodging };
+        });
+    };
+
+    const handleMiscellaneousUpdate = (index, field, value) => {
+        setUpdatedData(prevData => {
+            const updatedMiscellaneous = [...prevData.miscellaneous];
+            updatedMiscellaneous[index][field] = value;
+            return { ...prevData, miscellaneous: updatedMiscellaneous };
+        });
+    };
+
+    const retireCallback = () => {
+
+        dispatch(createRetirement({
+            id: selectedAdvance.id,
+            userId: currentUser.id,
+            amountSpent: updatedData.lodging.reduce((sum, item) => sum + (parseFloat(item.amountSpent) || 0), 0) +
+        updatedData.miscellaneous.reduce((sum, item) => sum + (parseFloat(item.amountSpent) || 0), 0),
+            // files: files.map(f => ({
+            //     name: f.name,
+            //     size: f.size,
+            //     type: f.type
+            // }))
+        }))
+
+        enqueueSnackbar('Successfully submitted travel authorization retirement', {
+            anchorOrigin: {
+                vertical: 'top',
+                horizontal: 'center'
+            },
+            variant: 'success'
+        });
+        dispatch(closeDialog(true));
+    };
+
+    useEffect(() => {
+        dispatch(setRetireCallback({ retireCallback }));
+    }, [dispatch]);
+
+    const sxDivider = {
+        borderColor: theme.palette.mode === ThemeMode.DARK ? 'divider' : 'primary.light'
+    };
 
     const handleRetirementApproval = (retirementId, approved, comment = "") => {
         dispatch(updateRetirementStatus({
@@ -94,12 +167,12 @@ const RetirementForm = () => {
                                                 <TotalCard
                                                     total={retirement.advance.amount}
                                                     label="Amount"
-                                                    icon={<Incidental />}
+                                                    icon={<Incidental/>}
                                                 />
                                                 <TotalCard
                                                     total={retirement.advance.amount - retirement.advance.amountSpent}
                                                     label="Balance"
-                                                    icon={<Incidental />}
+                                                    icon={<Incidental/>}
                                                 />
                                             </Stack>
                                             <Stack direction="row" spacing={2}>
@@ -119,7 +192,7 @@ const RetirementForm = () => {
                                                 </Button>
                                             </Stack>
                                         </Stack>
-                                        <Divider sx={{ my: 3 }} />
+                                        <Divider sx={{my: 3}}/>
                                     </Grid>
                                 ))}
                             </Grid>
@@ -129,6 +202,67 @@ const RetirementForm = () => {
             </Grid>
         )
     }
+
+    return (
+        <Grid container spacing={gridSpacing}>
+            <Grid item xs={12}>
+                <SubCard>
+                    <Grid container spacing={gridSpacing}>
+                        <Box sx={{p: 2.5}}>
+                            <Grid container spacing={gridSpacing}>
+                                <Grid item xs={12} md={4} lg={3}>
+                                    <Grid container spacing={1.25}>
+                                        <Grid item>
+                                            <Avatar alt="User 1" src={avatar} sx={{width: 64, height: 64}}/>
+                                        </Grid>
+                                        <Grid item xs zeroMinWidth>
+                                            <Stack direction="row" spacing={1}>
+                                                <Typography variant="h2">{selectedAdvance.traveler}</Typography>
+                                                {/*<TimelapseIcon color="warning" fontSize="small"/>*/}
+                                            </Stack>
+                                            <Stack direction="row" alignItems="center" spacing={1}>
+                                                <Typography variant="subtitle2" noWrap>
+                                                    Software Developer
+                                                </Typography>
+                                            </Stack>
+                                        </Grid>
+                                    </Grid>
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <Divider sx={sxDivider}/>
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <Grid container justifyContent="space-between" spacing={8}>
+                                        {headerData.map((data, index) => (
+                                            <Grid item key={index} xs={8} sm="auto">
+                                                <Stack spacing={1} alignItems={{xs: 'center', sm: 'flex-start'}}>
+                                                    <Typography variant="subtitle2">{data.header}</Typography>
+                                                    <Typography variant="h5">{data.value}</Typography>
+                                                </Stack>
+                                            </Grid>
+                                        ))}
+                                    </Grid>
+                                </Grid>
+                            </Grid>
+                        </Box>
+                    </Grid>
+                </SubCard>
+            </Grid>
+
+            <Grid item xs={12}>
+                <Grid container spacing={3}>
+                    <Grid item xs={12}>
+                        <LodgingCard data={lodging} onUpdate={handleLodgingUpdate}/>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <MiscellaneousCard data={miscellaneous} onUpdate={handleMiscellaneousUpdate}/>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <IncidentalCard data={incidentals}/>
+                    </Grid>
+                </Grid>
+            </Grid>
+        </Grid>
+    )
 };
 
-export default RetirementForm;

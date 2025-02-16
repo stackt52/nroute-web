@@ -19,7 +19,7 @@ export default function AppDialog() {
     const dialog = useSelector((state) => state.dialog);
     const dispatch = useDispatch();
 
-    const {title, subtitle, open, content, submitCallback, fullWidth, dismissButtonLabel, submitButtonLabel} = dialog;
+    const {title, subtitle, open, content, submitCallback, retireCallback, fullWidth, dismissButtonLabel, submitButtonLabel, retireButtonLabel} = dialog;
 
     useEffect(() => {
 
@@ -54,8 +54,12 @@ export default function AppDialog() {
                             <Button onClick={handleClose}>{dismissButtonLabel}</Button>
                             {submitCallback && (
                                 <Button variant="contained" onClick={submitCallback}>{submitButtonLabel}</Button>
+                            )},
+                            {retireCallback && (
+                                <Button variant="contained" onClick={retireCallback}>{retireButtonLabel}</Button>
                             )}
                         </DialogActions>
+
                     </>
                 )}
             </Dialog>

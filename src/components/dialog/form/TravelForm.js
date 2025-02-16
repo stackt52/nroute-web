@@ -20,7 +20,6 @@ import MiscellaneousCard from "../../ui-component/ta/MiscellaneousCard";
 import {closeDialog, setSubmitCallback} from "../../../store/slices/dialog";
 import DetailsCard from "../../ui-component/ta/details/DetailsCard";
 import {randomKey} from "../../../utils/key-generator";
-import {addTravelAuthorization} from "../../../store/slices/travelAuthorization";
 import { createAdvance } from 'store/slices/advanceSlice';
 import { useSelector } from 'react-redux';
 
