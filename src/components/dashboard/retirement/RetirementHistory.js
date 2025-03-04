@@ -10,13 +10,7 @@ import Typography from '@mui/material/Typography';
 // project imports
 import Chip from "../../ui-component/extended/Chip";
 import {useSelector} from "react-redux";
-import {statuses} from "../../../constants";
-import * as currentUser from "date-fns/locale";
 
-// table data
-function createData(submittedDate, destination, trip, tripDate, amount, balanceDue, status) {
-    return {submittedDate, destination, trip, tripDate, amount, balanceDue, status};
-}
 
 const colorFun = (status) => {
     switch (status) {
@@ -32,36 +26,37 @@ const colorFun = (status) => {
 }
 
 export default function RetirementHistory() {
+    const retirements = useSelector((state) => state.retirements.retirements);
+    const currentUser = useSelector((state) => state.auth.currentUser);
 
-    const advances = useSelector((state) => state.advances.advances);
-
-    // Filter Advances
-    const filteredAdvances = advances.filter(advance => advance.status === statuses.PENDING_FINANCE && advance.userId === currentUser.id);
+    const filteredRetirements = retirements.filter(retirement =>
+        retirement.userId === currentUser.id
+    );
 
     return <TableContainer>
         <Table>
             <TableHead>
                 <TableRow>
-                    <TableCell>Date submitted</TableCell>
-                    <TableCell sx={{pl: 3}}>Trip</TableCell>
-                    <TableCell>Trip Date</TableCell>
-                    <TableCell align="right">Amount</TableCell>
-                    <TableCell align="right">Balance</TableCell>
-                    <TableCell align="right" sx={{pr: 3}}>Status</TableCell>
+                    <TableCell sx={{pl: 4}}>Date submitted</TableCell>
+                    <TableCell sx={{pl: 4}}>Trip</TableCell>
+                    <TableCell sx={{pl: 4}}>Trip Date</TableCell>
+                    <TableCell sx={{pl: 4}}>Amount</TableCell>
+                    <TableCell sx={{pl: 4}}>Balance</TableCell>
+                    <TableCell sx={{pr: 4}}>Status</TableCell>
                 </TableRow>
             </TableHead>
             <TableBody>
-                {advances.map((row, index) => (
+                {filteredRetirements.map((row, index) => (
                     <TableRow hover key={index}>
-                        <TableCell>{row.dateSubmitted}</TableCell>
-                        <TableCell sx={{pl: 3}}>
+                        <TableCell sx={{pl: 4}}>{row.createdAt}</TableCell>
+                        <TableCell sx={{pl: 4}}>
                             <Typography variant="subtitle1">{row.details.destination.town}</Typography>
                             <Typography variant="subtitle2">{row.details.purpose}</Typography>
                         </TableCell>
-                        <TableCell>{row.details.dateOfTravel}</TableCell>
-                        <TableCell align="right">{row.totalAmount}</TableCell>
-                        <TableCell align="right">{row.totalAmount}</TableCell>
-                        <TableCell align="right" sx={{pr: 3}}>
+                        <TableCell sx={{pl: 4}}>{row.details.dateOfTravel}</TableCell>
+                        <TableCell sx={{pl: 4}}>{row.totalAmountSpent}</TableCell>
+                        <TableCell sx={{pl: 4}}>{row.balance}</TableCell>
+                        <TableCell sx={{pr: 4}}>
                                 <span>
                                     {row.status !== '' &&
                                         <Chip variant="outlined" chipcolor={colorFun(row.status)} label={row.status}/>}

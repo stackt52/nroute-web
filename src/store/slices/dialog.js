@@ -10,7 +10,9 @@ const initialState = {
     fullWidth: false,
     dismissButtonLabel: 'Close',
     submitButtonLabel: 'Submit',
-    retireButtonLabel: 'Retire',
+    retireButtonLabel: 'Retiring',
+    retireApproveButtonLabel: 'Approve',
+    retireRejectButtonLabel: 'Reject',
 };
 
 const dialog = createSlice({
@@ -18,7 +20,8 @@ const dialog = createSlice({
     initialState,
     reducers: {
         openDialog(state, action) {
-            const {title, subtitle, open, content, fullWidth, dismissButtonLabel,retireButtonLabel, submitButtonLabel} = action.payload;
+            const {title, subtitle, open, content, fullWidth, dismissButtonLabel,
+                retireButtonLabel, submitButtonLabel, retireApproveButtonLabel, retireRejectButtonLabel} = action.payload;
 
             state.title = title || 'Dialog'
             state.subtitle = subtitle || null
@@ -27,8 +30,12 @@ const dialog = createSlice({
             state.dismissButtonLabel = dismissButtonLabel || "Close"
             state.submitButtonLabel = submitButtonLabel || "Submit"
             state.retireButtonLabel = retireButtonLabel || "Retire"
+            state.retireApproveButtonLabel = retireApproveButtonLabel || "Approve"
+            state.retireRejectButtonLabel = retireRejectButtonLabel || "Reject"
             state.retireCallback = null
             state.submitCallback = null
+            state.retireApproveCallback = null
+            state.retireRejectCallback = null
             state.open = true
         },
 
@@ -50,10 +57,28 @@ const dialog = createSlice({
                 state.retireButtonLabel = retireButtonLabel;
             }
             state.retireCallback = retireCallback;
+        },
+
+        setRetireRejectCallback(state, action) {
+            const {retireRejectCallback, retireRejectButtonLabel} = action.payload;
+            if (retireRejectButtonLabel) {
+                state.retireRejectButtonLabel = retireRejectButtonLabel;
+            }
+            state.retireRejectCallback = retireRejectCallback;
+        },
+
+        setRetireApproveCallback(state, action) {
+            const {retireApproveCallback, retireApproveButtonLabel} = action.payload;
+            if (retireApproveButtonLabel) {
+                state.retireApproveButtonLabel = retireApproveButtonLabel;
+            }
+            state.retireApproveCallback = retireApproveCallback;
         }
     }
 });
 
-export const {openDialog, closeDialog, setSubmitCallback,setRetireCallback} = dialog.actions;
+export const {openDialog, closeDialog,
+    setSubmitCallback,setRetireCallback,  setRetireApproveCallback,
+    setRetireRejectCallback} = dialog.actions;
 
 export default dialog.reducer;

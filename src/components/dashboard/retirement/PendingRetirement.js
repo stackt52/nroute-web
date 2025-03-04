@@ -1,6 +1,5 @@
 // material-ui
 import Button from '@mui/material/Button';
-import CardActions from '@mui/material/CardActions';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -12,7 +11,6 @@ import Typography from '@mui/material/Typography';
 // project imports
 import {useDispatch} from "../../../store";
 import { useSelector } from 'react-redux';
-import { useState } from 'react';
 import RetirementForm from 'components/dialog/form/RetirementForm';
 import { roles, statuses } from 'constants/index';
 import {openDialog} from "../../../store/slices/dialog";
@@ -22,11 +20,9 @@ export default function PendingRetirement() {
     const dispatch = useDispatch();
     const currentUser = useSelector((state) => state.auth.currentUser);
     const advances = useSelector((state) => state.advances.advances);
-    const retirements = useSelector((state) => state.retirements.retirements);
 
-    const [selectedFiles, setSelectedFiles] = useState({});
-
-    const filteredAdvances = advances.filter(advance => advance.status === statuses.APPROVED_FINANCE && advance.userId === currentUser.id);
+    // To be change filtering condition
+    const filteredAdvances = advances.filter(advance => advance.status === statuses.PENDING_SUPERVISOR && advance.userId === currentUser.id);
 
     const openRetirementDialog = (selectedAdvance) => {
         dispatch(openDialog({
@@ -39,30 +35,27 @@ export default function PendingRetirement() {
             mode: 'retire'
         }));
     }
-    console.log(advances)
 
     return <TableContainer>
         <Table>
             <TableHead>
                 <TableRow>
-                    <TableCell sx={{pl: 3}}>Trip</TableCell>
-                    <TableCell align="right">Date</TableCell>
-                    <TableCell align="right">Amount disbursed</TableCell>
-                    <TableCell align="right" sx={{pr: 3}}>
-
-                    </TableCell>
+                    <TableCell sx={{pl: 4}}>Trip</TableCell>
+                    <TableCell sx={{pl: 4}}>Date</TableCell>
+                    <TableCell sx={{pl: 4}}>Amount Disbursed</TableCell>
+                    <TableCell sx={{pr: 4}}>Action</TableCell>
                 </TableRow>
             </TableHead>
             <TableBody>
-                {advances.map((row, index) => (
+                {filteredAdvances.map((row, index) => (
                     <TableRow hover key={index}>
-                        <TableCell sx={{pl: 3}}>
+                        <TableCell sx={{pl: 4}}>
                             <Typography variant="subtitle1">{row.details.destination.town}</Typography>
                             <Typography variant="subtitle2">{row.details.purpose}</Typography>
                         </TableCell>
-                        <TableCell align="right">{row.details.dateOfTravel}</TableCell>
-                        <TableCell align="right">{row.totalAmount}</TableCell>
-                        <TableCell align="right" sx={{pr: 3}}>
+                        <TableCell sx={{pl: 4}}>{row.details.dateOfTravel}</TableCell>
+                        <TableCell sx={{pl: 4}}>{row.totalAmount}</TableCell>
+                        <TableCell sx={{pr: 4}}>
                                 <span>
                                     <Button color="error" size="small" variant="outlined"
                                             onClick={() => openRetirementDialog(row)}>

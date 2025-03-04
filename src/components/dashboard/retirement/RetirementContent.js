@@ -24,6 +24,7 @@ import {ThemeMode} from 'config';
 import {IconFileDescription, IconHistory} from '@tabler/icons-react';
 import PendingRetirement from "./PendingRetirement";
 import History from "./RetirementHistory";
+import FinanceRetirement from "./FinanceRetirement";
 
 
 // tab content
@@ -154,6 +155,13 @@ export default function RetirementContent() {
                         <SubCard>
                             <Stack spacing={gridSpacing}>
                                 <History/>
+                            </Stack>
+                        </SubCard>
+                    </TabPanel>
+                    <TabPanel value={value} index={1}>
+                        <SubCard>
+                            <Stack spacing={gridSpacing}>
+                                <FinanceRetirement/>
                             </Stack>
                         </SubCard>
                     </TabPanel>

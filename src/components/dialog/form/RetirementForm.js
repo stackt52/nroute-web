@@ -8,15 +8,9 @@ import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 
-// third-party
-import * as yup from 'yup';
-import {useFormik} from 'formik';
-
 // project imports
 import {gridSpacing} from 'store/constant';
-import InputLabel from 'components/ui-component/extended/Form/InputLabel';
 import Incidental from "../../ui-component/ta/incidental/Incidental";
-import AddIncidental from "../../ui-component/ta/incidental/AddIncidental";
 import TotalCard from "../../ui-component/ta/TotalCard";
 import {useDispatch, useSelector} from 'react-redux';
 import {createRetirement, updateRetirementStatus} from 'store/slices/retirementSlice';
@@ -27,18 +21,11 @@ import SubCard from "../../ui-component/cards/SubCard";
 import Box from "@mui/material/Box";
 import {useTheme} from "@mui/material/styles";
 import {ThemeMode} from "../../../config";
-import LodgingCard from "../../ui-component/retirement/LodgingCard";
-import MiscellaneousCard from "../../ui-component/retirement/MiscellaneousCard";
-import IncidentalCard from "../../ui-component/retirement/IncidentalCard";
+import IncidentalCard from "../../ui-component/retirement/incidental/IncidentalCard";
 import {enqueueSnackbar} from "notistack";
 import {closeDialog, setRetireCallback} from "../../../store/slices/dialog";
-
-// yup validation-schema
-const validationSchema = yup.object({
-    officialStation: yup.string().required('Official Station is Required'),
-    email: yup.string().email('Enter a valid email').required('Email is Required'),
-    phoneNumber: yup.string().min(10, 'Phone number should be of minimum 10 characters').required('Phone is Required'),
-});
+import LodgingRetirementCard from "../../ui-component/retirement/lodging/LodgingCard";
+import MiscellaneousRetirementCard from "../../ui-component/retirement/miscellaneous/MiscellaneousCard";
 
 // ==============================|| RETIREMENT DETAILS ||============================== //
 
@@ -46,6 +33,7 @@ export default function RetirementForm({selectedAdvance}) {
     const dispatch = useDispatch();
     const currentUser = useSelector((state) => state.auth.currentUser);
     const retirements = useSelector((state) => state.retirements.retirements);
+    const advances = useSelector((state) => state.advances.advances);
     const [selectedFiles, setSelectedFiles] = useState({})
     const theme = useTheme();
     const avatar = '/assets/images/users/avatar-2.png';
@@ -59,13 +47,8 @@ export default function RetirementForm({selectedAdvance}) {
         { header: 'Purpose', value: `${details.purpose}` },
         { header: 'Date of Travel', value: `${details.dateOfTravel}` },
     ];
-
-    const handleFileChange = (advanceId, e) => {
-        setSelectedFiles({
-            ...selectedFiles,
-            [advanceId]: Array.from(e.target.files)
-        })
-    }
+    const [lodgingRetirement, setLodgingData] = useState([]);
+    const [miscellaneousRetirement, setMiscellaneousData] = useState([]);
 
     const handleSubmitRetirement = (advanceId) => {
         const files = selectedFiles[advanceId];
@@ -88,58 +71,50 @@ export default function RetirementForm({selectedAdvance}) {
         })
     }
 
-
-    // State to store updated data from child components
-    const [updatedData, setUpdatedData] = useState({
-        lodging: lodging.map(item => ({ ...item, amountSpent: '', comment: '' })),
-        miscellaneous: miscellaneous.map(item => ({ ...item, amountSpent: '', comment: '' })),
-        incidentals: incidentals.map(item => ({ ...item, amountSpent: '', comment: '' })),
-    });
-
-    // Callback function to update the parent state when child data changes
-    const handleLodgingUpdate = (index, field, value) => {
-        setUpdatedData(prevData => {
-            const updatedLodging = [...prevData.lodging];
-            updatedLodging[index][field] = value;
-            return { ...prevData, lodging: updatedLodging };
-        });
-    };
-
-    const handleMiscellaneousUpdate = (index, field, value) => {
-        setUpdatedData(prevData => {
-            const updatedMiscellaneous = [...prevData.miscellaneous];
-            updatedMiscellaneous[index][field] = value;
-            return { ...prevData, miscellaneous: updatedMiscellaneous };
-        });
-    };
-
     const retireCallback = () => {
+        // Validate if lodging or miscellaneous retirement data is provided
+        if (lodgingRetirement.length === 0 && miscellaneousRetirement.length === 0) {
+            enqueueSnackbar("Please add lodging or miscellaneous retirement data before submitting.", {
+                variant: "error",
+                anchorOrigin: {
+                    vertical: 'top',
+                    horizontal: 'center'
+                }
+            });
+            return; // Stop submission if no data is provided
+        }
 
+        // Calculate totals
+        const totalAmountSpent = [...lodgingRetirement, ...miscellaneousRetirement]
+            .reduce((sum, item) => sum + (parseFloat(item.amountSpent) || 0), 0);
+
+        const totalIncidental = [...incidentals]
+            .reduce((sum, item) => sum + (parseFloat(item.total) || 0), 0);
+
+        const total = totalAmountSpent + totalIncidental;
+
+        // Submit retirement data
         dispatch(createRetirement({
-            id: selectedAdvance.id,
+            advanceId: selectedAdvance.id,
             userId: currentUser.id,
-            amountSpent: updatedData.lodging.reduce((sum, item) => sum + (parseFloat(item.amountSpent) || 0), 0) +
-        updatedData.miscellaneous.reduce((sum, item) => sum + (parseFloat(item.amountSpent) || 0), 0),
-            // files: files.map(f => ({
-            //     name: f.name,
-            //     size: f.size,
-            //     type: f.type
-            // }))
-        }))
+            traveler: selectedAdvance.traveler,
+            details: details,
+            lodging: lodgingRetirement,
+            miscellaneous: miscellaneousRetirement,
+            totalAmountSpent: total,
+            totalAmountDisbursed:totalAmount,
+            travelerRole: "Software Developer",
+            balance: totalAmount - total,
+        }));
 
-        enqueueSnackbar('Successfully submitted travel authorization retirement', {
-            anchorOrigin: {
-                vertical: 'top',
-                horizontal: 'center'
-            },
-            variant: 'success'
-        });
+        enqueueSnackbar("Successfully submitted travel authorization retirement", { variant: "success" });
         dispatch(closeDialog(true));
     };
 
     useEffect(() => {
         dispatch(setRetireCallback({ retireCallback }));
-    }, [dispatch]);
+    }, [dispatch, lodgingRetirement, miscellaneousRetirement]);
+
 
     const sxDivider = {
         borderColor: theme.palette.mode === ThemeMode.DARK ? 'divider' : 'primary.light'
@@ -218,7 +193,6 @@ export default function RetirementForm({selectedAdvance}) {
                                         <Grid item xs zeroMinWidth>
                                             <Stack direction="row" spacing={1}>
                                                 <Typography variant="h2">{selectedAdvance.traveler}</Typography>
-                                                {/*<TimelapseIcon color="warning" fontSize="small"/>*/}
                                             </Stack>
                                             <Stack direction="row" alignItems="center" spacing={1}>
                                                 <Typography variant="subtitle2" noWrap>
@@ -252,17 +226,16 @@ export default function RetirementForm({selectedAdvance}) {
             <Grid item xs={12}>
                 <Grid container spacing={3}>
                     <Grid item xs={12}>
-                        <LodgingCard data={lodging} onUpdate={handleLodgingUpdate}/>
+                        <LodgingRetirementCard data={lodging} setData={setLodgingData} />
                     </Grid>
                     <Grid item xs={12}>
-                        <MiscellaneousCard data={miscellaneous} onUpdate={handleMiscellaneousUpdate}/>
+                        <MiscellaneousRetirementCard data={miscellaneous} setData={setMiscellaneousData} />
                     </Grid>
                     <Grid item xs={12}>
-                        <IncidentalCard data={incidentals}/>
+                        <IncidentalCard data={incidentals} />
                     </Grid>
                 </Grid>
             </Grid>
         </Grid>
     )
 };
-

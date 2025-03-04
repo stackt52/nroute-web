@@ -12,8 +12,8 @@ const retirementSlice = createSlice({
       state.retirements.push({
         ...action.payload,
         id: Date.now().toString(),
-        status: 'pending',
-        createdAt: new Date().toISOString(),
+        status: 'pending finance',
+        createdAt: new Date().toISOString().split('T')[0],
       });
     },
     updateRetirementStatus: (state, action) => {

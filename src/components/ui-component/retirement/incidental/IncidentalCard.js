@@ -7,7 +7,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import React from "react";
-import SubCard from "../cards/SubCard";
+import SubCard from "../../cards/SubCard";
 import TextField from "@mui/material/TextField";
 
 
@@ -16,8 +16,8 @@ import TextField from "@mui/material/TextField";
 function IncidentalCard({data}) {
     return (
         <>
-            <SubCard title="Meals & Incidental" content={false} sx={{p: 3}}>
-                <Grid container sx={{p: 2}}>
+            <SubCard title="Meals & Incidental" content={false} sx={{p: 2}}>
+                <Grid item xs={12} container spacing={2} sx={{ mb: 2, mt: 2 }}>
                     {data.map((row, index) => (
                         <Grid item xs={12} key={index} container spacing={2} alignItems="center">
                             <Grid item xs={6}>

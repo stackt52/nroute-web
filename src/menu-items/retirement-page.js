@@ -28,6 +28,12 @@ const retirementPage = {
                     title: <FormattedMessage id="history"/>,
                     type: 'item',
                     url: '/retirement/history',
+                },
+                {
+                    id: 'finance',
+                    title: <FormattedMessage id="finance"/>,
+                    type: 'item',
+                    url: '/retirement/finance',
                 }
             ]
         }

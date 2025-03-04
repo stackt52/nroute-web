@@ -19,10 +19,11 @@ export default function AppDialog() {
     const dialog = useSelector((state) => state.dialog);
     const dispatch = useDispatch();
 
-    const {title, subtitle, open, content, submitCallback, retireCallback, fullWidth, dismissButtonLabel, submitButtonLabel, retireButtonLabel} = dialog;
+    const {title, subtitle, open, content, submitCallback, retireCallback, fullWidth,
+        dismissButtonLabel, submitButtonLabel, retireButtonLabel, retireApproveButtonLabel, retireRejectButtonLabel,
+        retireApproveCallback, retireRejectCallback} = dialog;
 
     useEffect(() => {
-
     }, [dialog])
 
     const handleClose = () => {
@@ -57,6 +58,12 @@ export default function AppDialog() {
                             )},
                             {retireCallback && (
                                 <Button variant="contained" onClick={retireCallback}>{retireButtonLabel}</Button>
+                            )},
+                            {retireApproveCallback && (
+                                <Button variant="contained" onClick={retireApproveCallback}>{retireApproveButtonLabel}</Button>
+                            )},
+                            {retireRejectCallback && (
+                                <Button variant="contained" onClick={retireRejectCallback}>{retireRejectButtonLabel}</Button>
                             )}
                         </DialogActions>
 
