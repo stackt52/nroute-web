@@ -17,12 +17,27 @@ const retirementSlice = createSlice({
       });
     },
     updateRetirementStatus: (state, action) => {
-      const { id, status, comment } = action.payload;
-      const retirement = state.retirements.find(r => r.id === id);
-      if (retirement) {
-        retirement.status = status;
-        retirement.comment = comment;
+      const { id, status, comment, lodging, miscellaneous, totalAmountSpent, balance } = action.payload;
+      const retirementIndex = state.retirements.findIndex(r => r.id === id);
+
+      if (retirementIndex !== -1) {
+        const newRetirements = [...state.retirements];
+        newRetirements[retirementIndex] = {
+          ...newRetirements[retirementIndex],
+          status,
+          comment,
+          lodging,
+          miscellaneous,
+          totalAmountSpent,
+          balance,
+        };
+
+        return {
+          ...state,
+          retirements: newRetirements,
+        };
       }
+      return state; // Always return state to avoid breaking Redux
     },
   },
 });

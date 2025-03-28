@@ -14,7 +14,7 @@ import {statuses} from "../../../constants";
 import {openDialog} from "../../../store/slices/dialog";
 import {dispatch} from "../../../store";
 import Button from "@mui/material/Button";
-import FinanceForm from "../../dialog/form/FinanceForm";
+import FinanceReviewForm from "../../dialog/form/FinanceReviewForm";
 
 const colorFun = (status) => {
     switch (status) {
@@ -29,13 +29,16 @@ const colorFun = (status) => {
     }
 }
 
-export default function FinanceRetirement() {
+export default function FinanceReview() {
 
     const retirements = useSelector((state) => state.retirements.retirements);
     const currentUser = useSelector((state) => state.auth.currentUser);
 
     const filteredRetirements = retirements.filter(re =>
-        re.status === statuses.PENDING_FINANCE &&
+        (
+            re.status === statuses.PENDING_FINANCE || re.status === statuses.APPROVED_FINANCE ||
+                re.status === statuses.REJECTED_FINANCE
+        )  &&
         re.userId === currentUser.id
     );
 
@@ -44,7 +47,7 @@ export default function FinanceRetirement() {
         dispatch(openDialog({
             title: 'Retirement Details',
             open: true,
-            content: <FinanceForm selectedRetirement={selectedRetirement} />,
+            content: <FinanceReviewForm selectedRetirement={selectedRetirement} />,
             actionButton: null,
             fullWidth: true,
             dismissButtonLabel: 'Close',
@@ -60,7 +63,8 @@ export default function FinanceRetirement() {
                         <TableCell sx={{pl: 3}}>Date submitted</TableCell>
                         <TableCell sx={{pl: 3}}>Trip</TableCell>
                         <TableCell sx={{pl: 3}}>Trip Date</TableCell>
-                        <TableCell sx={{pl: 3}}>Amount</TableCell>
+                        <TableCell sx={{pl: 3}}>Amount Retirable</TableCell>
+                        <TableCell sx={{pl: 3}}>Amount Retired</TableCell>
                         <TableCell sx={{pl: 3}}>Balance</TableCell>
                         <TableCell sx={{pr: 3}}>Status</TableCell>
                         <TableCell sx={{pr: 3}}>Actions</TableCell>
@@ -75,6 +79,7 @@ export default function FinanceRetirement() {
                                 <Typography variant="subtitle2">{row.details.purpose}</Typography>
                             </TableCell>
                             <TableCell sx={{pl: 3}}>{row.details.dateOfTravel}</TableCell>
+                            <TableCell sx={{pl: 3}}>{row.amountRetirable}</TableCell>
                             <TableCell sx={{pl: 3}}>{row.totalAmountSpent}</TableCell>
                             <TableCell sx={{pl: 3}}>{row.balance}</TableCell>
                             <TableCell sx={{pr: 3}}>

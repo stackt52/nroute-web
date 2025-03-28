@@ -21,7 +21,6 @@ import SubCard from "../../ui-component/cards/SubCard";
 import Box from "@mui/material/Box";
 import {useTheme} from "@mui/material/styles";
 import {ThemeMode} from "../../../config";
-import IncidentalCard from "../../ui-component/retirement/incidental/IncidentalCard";
 import {enqueueSnackbar} from "notistack";
 import {closeDialog, setRetireCallback} from "../../../store/slices/dialog";
 import LodgingRetirementCard from "../../ui-component/retirement/lodging/LodgingCard";
@@ -37,18 +36,43 @@ export default function RetirementForm({selectedAdvance}) {
     const [selectedFiles, setSelectedFiles] = useState({})
     const theme = useTheme();
     const avatar = '/assets/images/users/avatar-2.png';
-    const { lodging, miscellaneous, incidentals, totalAmount, details } = selectedAdvance
+    const {lodging, miscellaneous, incidentals, totalAmount, details} = selectedAdvance;
+    const getNumberOfDays = (lodging) => {
+        if (!lodging || lodging.length === 0) return 0;
+
+        const startDates = lodging.map(item => new Date(item.startDate));
+        const endDates = lodging.map(item => new Date(item.endDate));
+
+        const minStartDate = new Date(Math.min(...startDates)); // Earliest start date
+        const maxEndDate = new Date(Math.max(...endDates)); // Latest end date
+
+         // Include both days
+        return (maxEndDate - minStartDate) / (1000 * 60 * 60 * 24) + 1;
+    };
+
+// Usage
+    const numberOfDays = getNumberOfDays(lodging);
+
     const headerData = [
-        { header: 'No. of Days', value: 5 },
-        { header: 'Destination', value: `${details.destination.town}` },
-        { header: 'Official Station', value: `${details.officialStation.town}` },
-        { header: 'Total Amount', value: `ZMK ${totalAmount}` },
-        { header: 'Cost Center', value: `${details.costCenter.name}` },
-        { header: 'Purpose', value: `${details.purpose}` },
-        { header: 'Date of Travel', value: `${details.dateOfTravel}` },
+        {header: 'No. of Days', value: numberOfDays},
+        {header: 'Destination', value: `${details.destination.town}`},
+        {header: 'Official Station', value: `${details.officialStation.town}`},
+        {header: 'Total Amount', value: `ZMK ${totalAmount}`},
+        {header: 'Cost Center', value: `${details.costCenter.name}`},
+        {header: 'Purpose', value: `${details.purpose}`},
+        {header: 'Date of Travel', value: `${details.dateOfTravel}`},
     ];
+
     const [lodgingRetirement, setLodgingData] = useState([]);
     const [miscellaneousRetirement, setMiscellaneousData] = useState([]);
+
+    // Calculate allAmounts dynamically
+    const allAmounts = {
+        incidentals: incidentals.reduce((sum, item) => sum + (parseFloat(item.total) || 0), 0),
+        lodging: lodgingRetirement.reduce((sum, item) => sum + (parseFloat(item.amountSpent) || 0), 0),
+        miscellaneous: miscellaneousRetirement.reduce((sum, item) => sum + (parseFloat(item.amountSpent) || 0), 0),
+        totalAmount: incidentals.reduce((sum, item) => sum + (parseFloat(item.total) || 0), 0) + lodgingRetirement.reduce((sum, item) => sum + (parseFloat(item.amountSpent) || 0), 0) + miscellaneousRetirement.reduce((sum, item) => sum + (parseFloat(item.amountSpent) || 0), 0)
+    };
 
     const handleSubmitRetirement = (advanceId) => {
         const files = selectedFiles[advanceId];
@@ -63,13 +87,13 @@ export default function RetirementForm({selectedAdvance}) {
                 size: f.size,
                 type: f.type
             }))
-        }))
+        }));
 
         setSelectedFiles({
             ...selectedFiles,
             [advanceId]: null
-        })
-    }
+        });
+    };
 
     const retireCallback = () => {
         // Validate if lodging or miscellaneous retirement data is provided
@@ -91,7 +115,7 @@ export default function RetirementForm({selectedAdvance}) {
         const totalIncidental = [...incidentals]
             .reduce((sum, item) => sum + (parseFloat(item.total) || 0), 0);
 
-        const total = totalAmountSpent + totalIncidental;
+        const totalAmountRetirable = totalAmount - totalIncidental;
 
         // Submit retirement data
         dispatch(createRetirement({
@@ -101,20 +125,26 @@ export default function RetirementForm({selectedAdvance}) {
             details: details,
             lodging: lodgingRetirement,
             miscellaneous: miscellaneousRetirement,
-            totalAmountSpent: total,
-            totalAmountDisbursed:totalAmount,
+            totalAmountSpent: totalAmountSpent,
+            amountRetirable: totalAmountRetirable,
             travelerRole: "Software Developer",
-            balance: totalAmount - total,
+            totalAmount: totalAmount,
+            balance: totalAmountRetirable - totalAmountSpent,
         }));
 
-        enqueueSnackbar("Successfully submitted travel authorization retirement", { variant: "success" });
+        enqueueSnackbar("Successfully submitted travel authorization retirement", {
+            variant: "success",
+            anchorOrigin: {
+                vertical: 'top',
+                horizontal: 'center'
+            }
+        });
         dispatch(closeDialog(true));
     };
 
     useEffect(() => {
-        dispatch(setRetireCallback({ retireCallback }));
+        dispatch(setRetireCallback({retireCallback}));
     }, [dispatch, lodgingRetirement, miscellaneousRetirement]);
-
 
     const sxDivider = {
         borderColor: theme.palette.mode === ThemeMode.DARK ? 'divider' : 'primary.light'
@@ -125,8 +155,8 @@ export default function RetirementForm({selectedAdvance}) {
             id: retirementId,
             status: approved ? 'APPROVED' : 'REJECTED',
             comment
-        }))
-    }
+        }));
+    };
 
     if (currentUser.role.includes(roles.FINANCE)) {
         return (
@@ -175,7 +205,7 @@ export default function RetirementForm({selectedAdvance}) {
                     </Grid>
                 </Grid>
             </Grid>
-        )
+        );
     }
 
     return (
@@ -196,7 +226,7 @@ export default function RetirementForm({selectedAdvance}) {
                                             </Stack>
                                             <Stack direction="row" alignItems="center" spacing={1}>
                                                 <Typography variant="subtitle2" noWrap>
-                                                    Software Developer
+                                                    {currentUser.position}
                                                 </Typography>
                                             </Stack>
                                         </Grid>
@@ -226,16 +256,14 @@ export default function RetirementForm({selectedAdvance}) {
             <Grid item xs={12}>
                 <Grid container spacing={3}>
                     <Grid item xs={12}>
-                        <LodgingRetirementCard data={lodging} setData={setLodgingData} />
+                        <LodgingRetirementCard data={lodging} setData={setLodgingData}/>
                     </Grid>
                     <Grid item xs={12}>
-                        <MiscellaneousRetirementCard data={miscellaneous} setData={setMiscellaneousData} />
+                        <MiscellaneousRetirementCard data={miscellaneous} setData={setMiscellaneousData}/>
                     </Grid>
-                    <Grid item xs={12}>
-                        <IncidentalCard data={incidentals} />
-                    </Grid>
+                    <TotalCard incidentals={incidentals} allAmounts={allAmounts}/>
                 </Grid>
             </Grid>
         </Grid>
-    )
-};
+    );
+}

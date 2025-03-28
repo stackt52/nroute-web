@@ -95,20 +95,18 @@ function AddRetirementLodging({ handleRetireItem, setRetireItemClicked }) {
 
                 <Grid item xs={12} md={2}>
                     <Stack direction="row" spacing={1} alignItems="center">
-                        {/* Display file name if a file is selected */}
                         {formik.values.file && (
                             <Typography variant="body1"
                                         sx={{
-                                flexGrow: 1,
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                whiteSpace: 'nowrap',
-                                maxWidth: '150px'
-                            }}>
+                                            flexGrow: 1,
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                            whiteSpace: 'nowrap',
+                                            maxWidth: '150px'
+                                        }}>
                                 {formik.values.file.name}
                             </Typography>
                         )}
-                        {/* File upload button */}
                         <Button variant="contained" component="label">
                             <UploadFileIcon />
                             <input
@@ -121,7 +119,6 @@ function AddRetirementLodging({ handleRetireItem, setRetireItemClicked }) {
                             />
                         </Button>
                     </Stack>
-                    {/* Display validation error for file field */}
                     {formik.touched.file && formik.errors.file && (
                         <Typography variant="caption" color="error">
                             {formik.errors.file}

@@ -19,81 +19,75 @@ import {useTheme} from "@mui/material/styles";
 import {ThemeMode} from "../../../config";
 import {enqueueSnackbar} from "notistack";
 import {closeDialog, setRetireApproveCallback, setRetireRejectCallback} from "../../../store/slices/dialog";
-import LodgingCard from "../../ui-component/finance/LodgingCard";
-import MiscellaneousCard from "../../ui-component/finance/MiscellaneousCard";
+import LodgingCard from "../../ui-component/finance/(review)/LodgingCard";
+import MiscellaneousCard from "../../ui-component/finance/(review)/MiscellaneousCard";
+import TextField from "@mui/material/TextField";
 
 // ==============================|| RETIREMENT DETAILS ||============================== //
 
-export default function FinanceForm({selectedRetirement}) {
+export default function FinanceReviewForm({selectedRetirement}) {
     const dispatch = useDispatch();
     const currentUser = useSelector((state) => state.auth.currentUser);
     const theme = useTheme();
     const avatar = '/assets/images/users/avatar-2.png';
-    const { lodging, miscellaneous, incidentals, totalAmountDisbursed, details } = selectedRetirement
+    const { lodging, miscellaneous, incidentals, totalAmount, details, comment: initialComment } = selectedRetirement
     const advances = useSelector((state) => state.advances.advances);
-    const [lodgingComment, setLodgingComment] = useState("");
-    const [miscellaneousComment, setMiscellaneousComment] = useState("");
-
-
+    const [comment, setComment] = useState(initialComment);
     const headerData = [
         { header: 'No. of Days', value: 5 },
         { header: 'Destination', value: `${details.destination.town}` },
         { header: 'Official Station', value: `${details.officialStation.town}` },
-        { header: 'Total Amount', value: `ZMK ${totalAmountDisbursed}` },
+        { header: 'Total Amount', value: `ZMK ${totalAmount}` },
         { header: 'Cost Center', value: `${details.costCenter.name}` },
         { header: 'Purpose', value: `${details.purpose}` },
         { header: 'Date of Travel', value: `${details.dateOfTravel}` },
     ];
 
+    useEffect(() => {
+        const retireApproveCallback = (retirementId) => {
+            const updatedRetirement = {
+                ...selectedRetirement,
+                status: 'approved finance',
+                comment: comment
+            };
 
+            dispatch(updateRetirementStatus(updatedRetirement));
 
-    const retireApproveCallback = (retirementId) => {
-        const updatedRetirement = {
-            ...selectedRetirement,
-            status: 'approved finance',
-            comment: lodgingComment
+            enqueueSnackbar('Successfully Approved travel authorization retirement', {
+                anchorOrigin: { vertical: 'top', horizontal: 'center' },
+                variant: 'success'
+            });
+            dispatch(closeDialog(true));
         };
 
-        dispatch(updateRetirementStatus(updatedRetirement));
+        const retireRejectCallback = (retirementId) => {
+            const updatedRetirement = {
+                ...selectedRetirement,
+                status: 'rejected finance',
+                comment: comment
+            };
+            dispatch(updateRetirementStatus(updatedRetirement));
 
-        enqueueSnackbar('Successfully Approved travel authorization retirement', {
-            anchorOrigin: { vertical: 'top', horizontal: 'center' },
-            variant: 'success'
-        });
-        dispatch(closeDialog(true));
-    };
+            enqueueSnackbar('Successfully Rejected travel authorization retirement',
+                {anchorOrigin: { vertical: 'top', horizontal: 'center'},
+                    variant: 'error'
+                });
+            dispatch(closeDialog(true));
+        };
 
-
-    const retireRejectCallback = (retirementId) => {
-        const updatedRetirement = {
-            ...selectedRetirement,
-            status: 'rejected finance',
-            comment: miscellaneousComment,
-        }
-        dispatch(updateRetirementStatus(updatedRetirement));
-
-        enqueueSnackbar('Successfully Rejected travel authorization retirement',
-            {anchorOrigin: { vertical: 'top', horizontal: 'center'},
-                variant: 'error'
-            });
-        dispatch(closeDialog(true));
-    }
+        dispatch(setRetireApproveCallback({ retireApproveCallback }));
+        dispatch(setRetireRejectCallback({ retireRejectCallback }));
+    }, [dispatch, comment]);
 
     const advanceData = advances.filter(advance =>
         advance.userId === currentUser.id &&
         advance.id === selectedRetirement.advanceId
     );
 
-    useEffect(() => {
-        dispatch(setRetireApproveCallback({ retireApproveCallback }));
-        dispatch(setRetireRejectCallback({ retireRejectCallback }));
-    }, [dispatch]);
-
 
     const sxDivider = {
         borderColor: theme.palette.mode === ThemeMode.DARK ? 'divider' : 'primary.light'
     };
-    console.log()
 
     return (
         <Grid container spacing={gridSpacing}>
@@ -147,17 +141,26 @@ export default function FinanceForm({selectedRetirement}) {
                         <LodgingCard
                             retirementData={lodging}
                             advanceData={advanceData[0].lodging}
-                            onCommentChange={setLodgingComment}
                         />
                     </Grid>
                     <Grid item xs={12}>
                         <MiscellaneousCard
                             retirementData={miscellaneous}
                             advanceData={advanceData[0].miscellaneous}
-                            onCommentChange={setMiscellaneousComment}
                         />
                     </Grid>
                 </Grid>
+            </Grid>
+            <Grid item xs={12}>
+                <TextField
+                    fullWidth
+                    multiline
+                    rows={3}
+                    label="Comment"
+                    variant="outlined"
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                />
             </Grid>
         </Grid>
     )

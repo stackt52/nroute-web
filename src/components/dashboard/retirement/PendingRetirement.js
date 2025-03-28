@@ -12,7 +12,7 @@ import Typography from '@mui/material/Typography';
 import {useDispatch} from "../../../store";
 import { useSelector } from 'react-redux';
 import RetirementForm from 'components/dialog/form/RetirementForm';
-import { roles, statuses } from 'constants/index';
+import { statuses } from 'constants/index';
 import {openDialog} from "../../../store/slices/dialog";
 
 
@@ -43,6 +43,7 @@ export default function PendingRetirement() {
                     <TableCell sx={{pl: 4}}>Trip</TableCell>
                     <TableCell sx={{pl: 4}}>Date</TableCell>
                     <TableCell sx={{pl: 4}}>Amount Disbursed</TableCell>
+                    <TableCell sx={{pl: 4}}>Amount Retirable</TableCell>
                     <TableCell sx={{pr: 4}}>Action</TableCell>
                 </TableRow>
             </TableHead>
@@ -55,6 +56,9 @@ export default function PendingRetirement() {
                         </TableCell>
                         <TableCell sx={{pl: 4}}>{row.details.dateOfTravel}</TableCell>
                         <TableCell sx={{pl: 4}}>{row.totalAmount}</TableCell>
+                        <TableCell sx={{pl: 4}}>
+                            {row.totalAmount - row.incidentals.reduce((sum, incidental) => sum + (parseFloat(incidental.total) || 0), 0)}
+                        </TableCell>
                         <TableCell sx={{pr: 4}}>
                                 <span>
                                     <Button color="error" size="small" variant="outlined"
@@ -68,5 +72,4 @@ export default function PendingRetirement() {
             </TableBody>
         </Table>
     </TableContainer>
-
 };

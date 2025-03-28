@@ -1,7 +1,7 @@
 'use client';
 
 import MainCard from "../../components/ui-component/cards/MainCard";
-import Finance from "../../components/dashboard/retirement/FinanceRetirement";
+import Finance from "../../components/dashboard/(finance)/FinanceReview";
 
 export default function FinancePage() {
 

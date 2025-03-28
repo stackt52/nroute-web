@@ -9,11 +9,13 @@ import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
+import Typography from '@mui/material/Typography';
+import Tooltip from '@mui/material/Tooltip';
 
 // assets
 import DeleteTwoToneIcon from "@mui/icons-material/DeleteTwoTone";
 
-function Miscellaneous({data, deleteMiscellaneousRetirement}) {
+function Miscellaneous({ data, deleteMiscellaneousRetirement }) {
     return (
         <>
             {data.length ? (
@@ -32,12 +34,45 @@ function Miscellaneous({data, deleteMiscellaneousRetirement}) {
                                 {data.map((row, index) => (
                                     <TableRow key={index}>
                                         <TableCell>{row.amountSpent}</TableCell>
-                                        <TableCell>{row.description}</TableCell>
-                                        <TableCell>{row.file ? row.file.name : 'No file uploaded'}</TableCell>
-                                        <TableCell sx={{pr: 1}} align="right">
+                                        <TableCell>
+                                            <Tooltip title={row.description} arrow placement="top">
+                                                <Typography
+                                                    variant="body2"
+                                                    noWrap
+                                                    sx={{
+                                                        maxWidth: 200,
+                                                        overflow: 'hidden',
+                                                        textOverflow: 'ellipsis',
+                                                        whiteSpace: 'nowrap',
+                                                        cursor: 'pointer'
+                                                    }}
+                                                >
+                                                    {row.description}
+                                                </Typography>
+                                            </Tooltip>
+                                        </TableCell>
+                                        <TableCell>
+                                            <Tooltip title={row.file ? row.file.name : 'No file uploaded'} arrow placement="top">
+                                                <Typography
+                                                    variant="body2"
+                                                    noWrap
+                                                    sx={{
+                                                        maxWidth: 200,
+                                                        overflow: 'hidden',
+                                                        textOverflow: 'ellipsis',
+                                                        whiteSpace: 'nowrap',
+                                                        cursor: 'pointer'
+                                                    }}
+                                                >
+                                                    {row.file ? row.file.name : 'No file uploaded'}
+                                                </Typography>
+                                            </Tooltip>
+                                        </TableCell>
+
+                                        <TableCell sx={{ pr: 1 }} align="right">
                                             <IconButton color="error" size="small"
                                                         onClick={() => deleteMiscellaneousRetirement(row.id)}>
-                                                <DeleteTwoToneIcon fontSize="small"/>
+                                                <DeleteTwoToneIcon fontSize="small" />
                                             </IconButton>
                                         </TableCell>
                                     </TableRow>
@@ -48,12 +83,12 @@ function Miscellaneous({data, deleteMiscellaneousRetirement}) {
                 </Grid>
             ) : null}
         </>
-    )
+    );
 }
 
 Miscellaneous.propTypes = {
     data: PropTypes.array,
-    deleteRetirementMiscellaneous: PropTypes.func
+    deleteMiscellaneousRetirement: PropTypes.func
 };
 
 export default Miscellaneous;
