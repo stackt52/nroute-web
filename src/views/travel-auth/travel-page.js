@@ -19,7 +19,7 @@ export default function TravelPage() {
         dispatch(openDialog({
             title: 'Travel Authorization',
             open: true,
-            content: <TravelForm/>,
+            content: <TravelForm />,
             fullWidth: true,
             dismissButtonLabel: 'Close'
         }));

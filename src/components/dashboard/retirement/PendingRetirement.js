@@ -1,6 +1,5 @@
 // material-ui
 import Button from '@mui/material/Button';
-import CardActions from '@mui/material/CardActions';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -12,77 +11,65 @@ import Typography from '@mui/material/Typography';
 // project imports
 import {useDispatch} from "../../../store";
 import { useSelector } from 'react-redux';
-import { useState } from 'react';
 import RetirementForm from 'components/dialog/form/RetirementForm';
-import { roles, statuses } from 'constants/index';
-
-// table data
-function createData(destination, trip, date, amount, badgeText) {
-    return {destination, trip, date, amount, badgeText};
-}
-
-const rows = [
-    createData('Durban, South Africa', '2024 Interoperability workshop', '08/09/2024', '$3,500'),
-    createData('Luapula', 'Site visit', '12/06/2024', 'K2,450'),
-    createData('Livingstone', 'IAF TWG meeting', '24/05/2024', 'k4,980'),
-    createData('Chilanga, Lusaka', 'Dashboards and data pipeline workshop', '02/12/2023', 'K5,650')
-];
+import { statuses } from 'constants/index';
+import {openDialog} from "../../../store/slices/dialog";
 
 
 export default function PendingRetirement() {
     const dispatch = useDispatch();
     const currentUser = useSelector((state) => state.auth.currentUser);
     const advances = useSelector((state) => state.advances.advances);
-    const retirements = useSelector((state) => state.retirements.retirements);
 
-    const [selectedFiles, setSelectedFiles] = useState({});
+    // To be change filtering condition
+    const filteredAdvances = advances.filter(advance => advance.status === statuses.PENDING_SUPERVISOR && advance.userId === currentUser.id);
 
-    const filteredAdvances = advances.filter(advance => advance.status === statuses.APPROVED_FINANCE && advance.userId === currentUser.id);
-
-    const openRetirementDialog = (e) => {
+    const openRetirementDialog = (selectedAdvance) => {
         dispatch(openDialog({
-            title: 'Retirement details',
+            title: 'Retirement Details',
             open: true,
-            content: <RetirementForm/>,
+            content: <RetirementForm selectedAdvance={selectedAdvance} />,
             actionButton: null,
             fullWidth: true,
-            dismissButtonLabel: 'Close'
+            dismissButtonLabel: 'Close',
+            mode: 'retire'
         }));
     }
 
-    return  <TableContainer>
-            <Table>
-                <TableHead>
-                    <TableRow>
-                        <TableCell sx={{pl: 3}}>Trip</TableCell>
-                        <TableCell align="right">Date</TableCell>
-                        <TableCell align="right">Amount disbursed</TableCell>
-                        <TableCell align="right" sx={{pr: 3}}>
-
+    return <TableContainer>
+        <Table>
+            <TableHead>
+                <TableRow>
+                    <TableCell sx={{pl: 4}}>Trip</TableCell>
+                    <TableCell sx={{pl: 4}}>Date</TableCell>
+                    <TableCell sx={{pl: 4}}>Amount Disbursed</TableCell>
+                    <TableCell sx={{pl: 4}}>Amount Retirable</TableCell>
+                    <TableCell sx={{pr: 4}}>Action</TableCell>
+                </TableRow>
+            </TableHead>
+            <TableBody>
+                {filteredAdvances.map((row, index) => (
+                    <TableRow hover key={index}>
+                        <TableCell sx={{pl: 4}}>
+                            <Typography variant="subtitle1">{row.details.destination.town}</Typography>
+                            <Typography variant="subtitle2">{row.details.purpose}</Typography>
                         </TableCell>
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    {filteredAdvances.map((advance, index) => (
-                        <TableRow hover key={index}>
-                            <TableCell sx={{pl: 3}}>
-                                <Typography variant="subtitle1">{advance.details.destination.town}</Typography>
-                                <Typography variant="subtitle2">{advance.details.purpose}</Typography>
-                            </TableCell>
-                            <TableCell align="right">{advance.details.dateOfTravel}</TableCell>
-                            <TableCell align="right">{advance.totalAmount}</TableCell>
-                            <TableCell align="right" sx={{pr: 3}}>
+                        <TableCell sx={{pl: 4}}>{row.details.dateOfTravel}</TableCell>
+                        <TableCell sx={{pl: 4}}>{row.totalAmount}</TableCell>
+                        <TableCell sx={{pl: 4}}>
+                            {row.totalAmount - row.incidentals.reduce((sum, incidental) => sum + (parseFloat(incidental.total) || 0), 0)}
+                        </TableCell>
+                        <TableCell sx={{pr: 4}}>
                                 <span>
                                     <Button color="error" size="small" variant="outlined"
-                                            onClick={(e) => openRetirementDialog(e)}>
+                                            onClick={() => openRetirementDialog(row)}>
 								        Retire
 							        </Button>
                                 </span>
-                            </TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
-        </TableContainer>
-
+                        </TableCell>
+                    </TableRow>
+                ))}
+            </TableBody>
+        </Table>
+    </TableContainer>
 };

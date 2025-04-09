@@ -12,17 +12,32 @@ const retirementSlice = createSlice({
       state.retirements.push({
         ...action.payload,
         id: Date.now().toString(),
-        status: 'pending',
-        createdAt: new Date().toISOString(),
+        status: 'pending finance',
+        createdAt: new Date().toISOString().split('T')[0],
       });
     },
     updateRetirementStatus: (state, action) => {
-      const { id, status, comment } = action.payload;
-      const retirement = state.retirements.find(r => r.id === id);
-      if (retirement) {
-        retirement.status = status;
-        retirement.comment = comment;
+      const { id, status, comment, lodging, miscellaneous, totalAmountSpent, balance } = action.payload;
+      const retirementIndex = state.retirements.findIndex(r => r.id === id);
+
+      if (retirementIndex !== -1) {
+        const newRetirements = [...state.retirements];
+        newRetirements[retirementIndex] = {
+          ...newRetirements[retirementIndex],
+          status,
+          comment,
+          lodging,
+          miscellaneous,
+          totalAmountSpent,
+          balance,
+        };
+
+        return {
+          ...state,
+          retirements: newRetirements,
+        };
       }
+      return state; // Always return state to avoid breaking Redux
     },
   },
 });
