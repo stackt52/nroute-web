@@ -11,6 +11,7 @@ const initialState = {
       password: "admin123",
       department: "Administration",
       role: [roles.ADMIN],
+      position: null
     },
     {
       id: 2,
@@ -20,6 +21,7 @@ const initialState = {
       password: "password123",
       department: "Software",
       role: [roles.USER],
+      position: "Software Developer",
       supervisorId: 3
     },
     {
@@ -30,6 +32,7 @@ const initialState = {
       password: "password123",
       department: "Software",
       role: [roles.SUPERVISOR],
+      position: "Software Developer",
       supervisorId: 3
     },
     {
@@ -40,6 +43,7 @@ const initialState = {
       password: "password123",
       department: "Health Informatics",
       role: [roles.SUPERVISOR],
+      position: null,
       supervisorId: 4
     },
     {
@@ -50,6 +54,7 @@ const initialState = {
       password: "password123",
       department: "Finance",
       role: [roles.FINANCE],
+      position: null,
       supervisorId: 7
     },
     {
@@ -59,6 +64,7 @@ const initialState = {
       email: "Mundeke.Shamatanga@ihmafrica.org",
       password: "password123",
       department: "Finance",
+      position: null,
       role: [roles.FINANCE, roles.COST_CENTRE_OWNER],
     },
     {
@@ -69,6 +75,7 @@ const initialState = {
       password: "password123",
       department: "Finance",
       role: [roles.FINANCE, roles.SUPERVISOR],
+      position: null,
       supervisorId: 7
     },
     {
@@ -78,6 +85,7 @@ const initialState = {
       email: "Patrick@ihmafrica.org",
       password: "password123",
       department: "Health Informatics",
+      position: null,
       role: [roles.COST_CENTRE_OWNER],
     },
   ],

@@ -15,6 +15,9 @@ import {ThemeMode} from 'config';
 function TotalCard({incidentals, allAmounts}) {
     const theme = useTheme();
 
+    console.log(incidentals);
+    console.log(allAmounts);
+
     return (
         <>
             {incidentals.length ? (

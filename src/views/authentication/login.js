@@ -103,7 +103,7 @@ const Login = () => {
 											</Stack>
 										</Grid>
 										<Grid item xs={12}>
-											<AuthLogin loginProp={2} />
+											<AuthLogin loginprop={2} />
 										</Grid>
 										<Grid item xs={12}>
 											<Divider />
