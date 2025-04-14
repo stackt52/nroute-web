@@ -30,6 +30,17 @@ export default function AppDialog() {
         dispatch(closeDialog({open: false}));
     };
 
+    const renderContent = () => {
+        if (!content) return null;
+        
+        if (typeof content === 'function') {
+            const ContentComponent = content;
+            return <ContentComponent />;
+        }
+        
+        return content;
+    };
+
     return (
         <>
             <Dialog fullWidth={fullWidth} maxWidth='lg' open={open} onClose={handleClose}>
@@ -48,7 +59,7 @@ export default function AppDialog() {
                                     width: 'fit-content'
                                 }}
                             >
-                                {content}
+                                {renderContent()}
                             </Box>
                         </DialogContent>
                         <DialogActions>

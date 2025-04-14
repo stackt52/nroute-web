@@ -88,6 +88,16 @@ const initialState = {
       position: null,
       role: [roles.COST_CENTRE_OWNER],
     },
+    {
+      id: 9,
+      firstName: "Mustafa (Pulak)",
+      lastName: "Mahmoud",
+      email: "Pulak@ihmafrica.org",
+      password: "password123",
+      department: "Software",
+      role: [roles.COST_CENTRE_OWNER],
+      position: "Software Developer",
+    },
   ],
   currentUser: null,
 };
