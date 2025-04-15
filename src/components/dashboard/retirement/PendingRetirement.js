@@ -22,7 +22,7 @@ export default function PendingRetirement() {
     const advances = useSelector((state) => state.advances.advances);
 
     // To be change filtering condition
-    const filteredAdvances = advances.filter(advance => advance.status === statuses.PENDING_SUPERVISOR && advance.userId === currentUser.id);
+    const filteredAdvances = advances.filter(advance => advance.status === statuses.APPROVED_FINANCE && advance.userId === currentUser.id);
 
     const openRetirementDialog = (selectedAdvance) => {
         dispatch(openDialog({

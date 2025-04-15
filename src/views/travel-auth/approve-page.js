@@ -40,11 +40,11 @@ export default function ApprovePage() {
 
     const filteredAdvances = getRelevantAdvances();
 
-    const openApprovalDialog = (advanceId) => {
+    const openApprovalDialog = (advanceId, selectedAdvance) => {
         dispatch(openDialog({
             title: "Approval",
             open: true,
-            content: <ApprovalForm advanceId={advanceId}/>,
+            content: <ApprovalForm advanceId={advanceId} selectedAdvance={selectedAdvance}/>,
             fullWidth: true,
             dismissButtonLabel: "Close"
         }))
@@ -77,7 +77,7 @@ export default function ApprovePage() {
                                     <TableCell align="right">{advance.totalAmount}</TableCell>
                                     <TableCell align="right" sx={{pr: 3}}>
                                         <Button variant="contained"
-                                    size="small" onClick={() => openApprovalDialog(advance.id)}>Review</Button>
+                                    size="small" onClick={() => openApprovalDialog(advance.id, advance)}>Review</Button>
                                     </TableCell>
                                 </TableRow>
                             ))}
