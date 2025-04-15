@@ -42,11 +42,13 @@ export default function ApprovePage() {
 
     const openApprovalDialog = (advanceId, selectedAdvance) => {
         dispatch(openDialog({
-            title: "Approval",
+            title: "Travel Advance Review",
             open: true,
             content: <ApprovalForm advanceId={advanceId} selectedAdvance={selectedAdvance}/>,
+            actionButton: null,
             fullWidth: true,
-            dismissButtonLabel: "Close"
+            dismissButtonLabel: "Approve",
+            mode: "travel advance"
         }))
     }
 
