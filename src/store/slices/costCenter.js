@@ -9,7 +9,8 @@ const initialState = [
     createData(2,'ITSS', 'IT Services and Support', 'Aka M.'),
     createData(3, 'TAD', 'Talent Acquisition and Development', 'PB'),
     createData(4,'AM', 'Asset Management', 'Glory S.'),
-    createData(5,'Procurement', 'Procurement', 'Lisa Ngenda')
+    createData(5,'Procurement', 'Procurement', 'Lisa Ngenda'),
+    createData(6,'Health Informatics', 'Health Informatics', 'Patrick Shabangu')
 ];
 
 const costCenter = createSlice({

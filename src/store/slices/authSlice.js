@@ -96,7 +96,7 @@ const initialState = {
       password: "password123",
       department: "Software",
       role: [roles.COST_CENTRE_OWNER],
-      position: "Software Developer",
+      position: null,
     },
   ],
   currentUser: null,
@@ -125,6 +125,7 @@ const authSlice = createSlice({
   reducers: {
     logout: (state) => {
       state.currentUser = null;
+      location.reload();
     },
     createUser: (state, action) => {
       const newUser = {
