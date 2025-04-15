@@ -15,7 +15,7 @@ import { updateAdvanceStatus } from 'store/slices/advanceSlice';
 import { setSubmitCallback } from "../../../store/slices/dialog";
 
 
-const ApprovalForm = ({advanceId}) => {
+const ApprovalForm = ({advanceId, selectedAdvance}) => {
     const dispatch = useDispatch();
     const currentUser = useSelector((state) => state.auth.currentUser);
 
@@ -52,7 +52,7 @@ const ApprovalForm = ({advanceId}) => {
         <>
             {/* <Grid container spacing={gridSpacing}> */}
                 {/* <Grid item xs={12} flex> */}
-                    <ApprovalCard formRef={approvalForm} setData={setApproval} handleApproval={handleApproval} advanceId={advanceId}/>
+                    <ApprovalCard formRef={approvalForm} setData={setApproval} handleApproval={handleApproval} advanceId={advanceId} selectedAdvance={selectedAdvance}/>
                 {/* </Grid> */}
             {/* </Grid> */}
         </>
